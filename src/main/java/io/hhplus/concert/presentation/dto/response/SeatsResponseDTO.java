@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SeatResponseDTO {
+public class SeatsResponseDTO {
 
     private Long concertId;
 
@@ -14,13 +14,13 @@ public class SeatResponseDTO {
     private List<Long> seatId;
 
 
-    public SeatResponseDTO(Long concertId, Long dateId, List<Long> seatId) {
+    public SeatsResponseDTO(Long concertId, Long dateId, List<Long> seatId) {
         this.concertId = concertId;
         this.dateId = dateId;
         this.seatId = seatId;
     }
 
-    public SeatResponseDTO(List<Long> seatId) {
+    public SeatsResponseDTO(List<Long> seatId) {
         this.seatId = seatId;
     }
 

@@ -1,14 +1,14 @@
 package io.hhplus.concert.application.entity;
 
 /**
- * 결제 상태
+ * 예약 상태
  * PENDING : 중지
- * COMPLETE : 완료
+ * APPLY : 요청
  * CANCEL : 취소
  **/
 
-public enum PaymentStatus {
+public enum ReservationsStatus {
     PENDING,
-    COMPLETE,
+    APPLY,
     CANCEL
 }

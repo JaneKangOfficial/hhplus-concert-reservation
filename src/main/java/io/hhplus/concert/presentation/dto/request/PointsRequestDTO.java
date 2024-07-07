@@ -1,6 +1,6 @@
 package io.hhplus.concert.presentation.dto.request;
 
-public class PointRequestDTO {
+public class PointsRequestDTO {
 
     private Long userId;
 
@@ -8,7 +8,7 @@ public class PointRequestDTO {
 
     private String status;
 
-    public PointRequestDTO(Long userId, Integer point, String status) {
+    public PointsRequestDTO(Long userId, Integer point, String status) {
         this.userId = userId;
         this.point = point;
         this.status = status;

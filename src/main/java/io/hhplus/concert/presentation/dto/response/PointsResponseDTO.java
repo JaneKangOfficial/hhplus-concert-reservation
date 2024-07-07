@@ -1,10 +1,10 @@
 package io.hhplus.concert.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.hhplus.concert.application.entity.PointStatus;
+import io.hhplus.concert.application.entity.PointsStatus;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PointResponseDTO {
+public class PointsResponseDTO {
 
     private Long pointId;
 
@@ -14,9 +14,9 @@ public class PointResponseDTO {
 
     private Integer total;
 
-    private PointStatus status;
+    private PointsStatus status;
 
-    public PointResponseDTO(Integer total) {
+    public PointsResponseDTO(Integer total) {
         this.total = total;
     }
 
@@ -52,11 +52,11 @@ public class PointResponseDTO {
         this.total = total;
     }
 
-    public PointStatus getStatus() {
+    public PointsStatus getStatus() {
         return status;
     }
 
-    public void setStatus(PointStatus status) {
+    public void setStatus(PointsStatus status) {
         this.status = status;
     }
 }

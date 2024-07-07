@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DateResponseDTO {
+public class DatesResponseDTO {
 
     private List<Long> dateId;
 
@@ -15,13 +15,13 @@ public class DateResponseDTO {
     private List<LocalDate> availableDates;
 
 
-    public DateResponseDTO(List<Long> dateId, Long concertId, List<LocalDate> availableDates) {
+    public DatesResponseDTO(List<Long> dateId, Long concertId, List<LocalDate> availableDates) {
         this.dateId = dateId;
         this.concertId = concertId;
         this.availableDates = availableDates;
     }
 
-    public DateResponseDTO(List<LocalDate> availableDates) {
+    public DatesResponseDTO(List<LocalDate> availableDates) {
         this.availableDates = availableDates;
     }
 

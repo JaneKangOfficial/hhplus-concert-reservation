@@ -6,7 +6,7 @@ package io.hhplus.concert.application.entity;
  * DEDUCTION : 차감
  **/
 
-public enum PointStatus {
+public enum PointsStatus {
     CHARGE,
     DEDUCTION
 }

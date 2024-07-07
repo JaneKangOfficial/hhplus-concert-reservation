@@ -1,6 +1,6 @@
 package io.hhplus.concert.presentation.dto.request;
 
-public class ReservationRequestDTO {
+public class ReservationsRequestDTO {
 
     private Long userId;
 
@@ -10,7 +10,7 @@ public class ReservationRequestDTO {
 
     private Long seatId;
 
-    public ReservationRequestDTO(Long userId, Long concertId, Long dateId, Long seatId) {
+    public ReservationsRequestDTO(Long userId, Long concertId, Long dateId, Long seatId) {
         this.userId = userId;
         this.concertId = concertId;
         this.dateId = dateId;

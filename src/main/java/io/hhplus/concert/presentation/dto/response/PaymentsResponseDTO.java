@@ -1,12 +1,12 @@
 package io.hhplus.concert.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.hhplus.concert.application.entity.ReservationStatus;
+import io.hhplus.concert.application.entity.PaymentsStatus;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ReservationResponseDTO {
+public class PaymentsResponseDTO {
 
-    private Long reservationId;
+    private Long paymentId;
 
     private Long userId;
 
@@ -16,28 +16,26 @@ public class ReservationResponseDTO {
 
     private Long seatId;
 
-    private ReservationStatus status;
+    private Integer total;
 
+    private PaymentsStatus status;
 
-    public ReservationResponseDTO(Long reservationId, Long userId, Long concertId, Long dateId, Long seatId, ReservationStatus status) {
-        this.reservationId = reservationId;
+    public PaymentsResponseDTO(Long paymentId, Long userId, Long concertId, Long dateId, Long seatId, Integer total, PaymentsStatus status) {
+        this.paymentId = paymentId;
         this.userId = userId;
         this.concertId = concertId;
         this.dateId = dateId;
         this.seatId = seatId;
+        this.total = total;
         this.status = status;
     }
 
-    public ReservationResponseDTO(ReservationStatus status) {
-        this.status = status;
+    public Long getPaymentId() {
+        return paymentId;
     }
 
-    public Long getReservationId() {
-        return reservationId;
-    }
-
-    public void setReservationId(Long reservationId) {
-        this.reservationId = reservationId;
+    public void setPaymentId(Long paymentId) {
+        this.paymentId = paymentId;
     }
 
     public Long getUserId() {
@@ -72,11 +70,19 @@ public class ReservationResponseDTO {
         this.seatId = seatId;
     }
 
-    public ReservationStatus getStatus() {
+    public Integer getTotal() {
+        return total;
+    }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public PaymentsStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ReservationStatus status) {
+    public void setStatus(PaymentsStatus status) {
         this.status = status;
     }
 }
