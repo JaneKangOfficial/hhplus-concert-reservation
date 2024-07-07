@@ -1,4 +1,4 @@
-package io.hhplus.concert.application.entity;
+package io.hhplus.concert.infrastructure.entity;
 
 /**
  * 결제 상태

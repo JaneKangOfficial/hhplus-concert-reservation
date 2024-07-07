@@ -1,7 +1,7 @@
-package io.hhplus.concert.presentation.dto.response;
+package io.hhplus.concert.presentation.points.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.hhplus.concert.application.entity.PointsStatus;
+import io.hhplus.concert.infrastructure.entity.PointsStatus;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PointsResponseDTO {

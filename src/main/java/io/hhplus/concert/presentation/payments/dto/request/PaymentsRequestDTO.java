@@ -1,4 +1,4 @@
-package io.hhplus.concert.presentation.dto.request;
+package io.hhplus.concert.presentation.payments.dto.request;
 
 public class PaymentsRequestDTO {
 

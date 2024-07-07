@@ -1,4 +1,4 @@
-package io.hhplus.concert.presentation.dto.response;
+package io.hhplus.concert.presentation.dates.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

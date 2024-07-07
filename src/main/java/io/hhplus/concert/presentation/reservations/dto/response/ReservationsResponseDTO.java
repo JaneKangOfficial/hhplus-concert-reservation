@@ -1,7 +1,7 @@
-package io.hhplus.concert.presentation.dto.response;
+package io.hhplus.concert.presentation.reservations.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.hhplus.concert.application.entity.ReservationsStatus;
+import io.hhplus.concert.infrastructure.entity.ReservationsStatus;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReservationsResponseDTO {

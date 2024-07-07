@@ -1,7 +1,7 @@
-package io.hhplus.concert.presentation.dto.response;
+package io.hhplus.concert.presentation.payments.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.hhplus.concert.application.entity.PaymentsStatus;
+import io.hhplus.concert.infrastructure.entity.PaymentsStatus;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaymentsResponseDTO {

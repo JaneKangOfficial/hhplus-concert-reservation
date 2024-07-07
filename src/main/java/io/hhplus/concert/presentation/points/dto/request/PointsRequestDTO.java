@@ -1,4 +1,4 @@
-package io.hhplus.concert.presentation.dto.request;
+package io.hhplus.concert.presentation.points.dto.request;
 
 public class PointsRequestDTO {
 

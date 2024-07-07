@@ -1,4 +1,4 @@
-package io.hhplus.concert.presentation.dto.request;
+package io.hhplus.concert.presentation.reservations.dto.request;
 
 public class ReservationsRequestDTO {
 
