@@ -109,7 +109,7 @@
   <summary>ERD 다이어그램</summary>
 
 [ERD](https://dbdiagram.io/d/concert3-668552fb9939893daef24953)
-<img width="981" alt="" src="https://github.com/JaneKangOfficial/hhplus-concert-reservation/assets/50077963/962f1400-b055-4618-8375-1ce71f2d5df0">
+<img width="864" alt="" src="https://github.com/JaneKangOfficial/hhplus-concert-reservation/assets/50077963/a3f0f794-a97a-4a6a-8676-65831498a806">
 
 </details>
 
@@ -273,5 +273,14 @@ Response
     "status": "COMPLETE"
 }
 ```
+
+</details>
+
+
+<details>
+  <summary>Swagger</summary>
+
+[Swagger](http://localhost:8080/swagger-ui/index.html)
+<img width="1414" alt="" src="https://github.com/JaneKangOfficial/hhplus-concert-reservation/assets/50077963/1614fec0-329a-401d-b988-89093c9e3433">
 
 </details>
