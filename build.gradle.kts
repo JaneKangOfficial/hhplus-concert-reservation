@@ -29,6 +29,7 @@ dependencies {
     testImplementation(libs.spring.boot.starter.test)
     runtimeOnly(libs.h2)
     implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.springdoc.openapi.starter.webmvc.ui)
 }
 
 // about source and compilation
