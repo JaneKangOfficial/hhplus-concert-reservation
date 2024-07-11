@@ -8,10 +8,16 @@ import io.hhplus.concert.domain.concerts.infrastructure.entity.SeatsEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.SeatsJpaRepository;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.DatesResponseDTO;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.SeatsResponseDTO;
+import io.hhplus.concert.domain.reservations.business.entity.ReservationsStatus;
+import io.hhplus.concert.domain.reservations.infrastructure.entity.ReservationsEntity;
+import io.hhplus.concert.domain.reservations.infrastructure.respositoryImpl.ReservationsJpaRepository;
+import io.hhplus.concert.domain.reservations.presentation.dto.request.ReservationsRequestDTO;
+import io.hhplus.concert.domain.reservations.presentation.dto.response.ReservationsResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,10 +25,12 @@ public class ConcertsServiceImpl implements ConcertsService {
 
     private final SeatsJpaRepository seatsJpaRepository;
     private final ConcertsRepository concertsRepository;
+    private final ReservationsJpaRepository reservationsJpaRepository;
 
-    public ConcertsServiceImpl(ConcertsRepository concertsRepository, SeatsJpaRepository seatsJpaRepository) {
+    public ConcertsServiceImpl(ConcertsRepository concertsRepository, SeatsJpaRepository seatsJpaRepository, ReservationsJpaRepository reservationsJpaRepository) {
         this.concertsRepository = concertsRepository;
         this.seatsJpaRepository = seatsJpaRepository;
+        this.reservationsJpaRepository = reservationsJpaRepository;
     }
 
     // 매 분마다 실행되는 스케줄러
@@ -73,5 +81,29 @@ public class ConcertsServiceImpl implements ConcertsService {
     }
 
     // TODO :: 좌석 클릭시 lock_until 현재 시간 + 5분으로 수정, status는 UNAVAILABLE로 수정하여 좌석 잠금
+
+    // 예약 요청
+    @Override
+    public ReservationsResponseDTO reservations(ReservationsRequestDTO reservationsRequestDTO) {
+        Optional<ReservationsEntity> reservationsEntity = Optional.empty();
+
+        // 선택한 좌석이 예약 가능하면 예약 진행
+        Optional<SeatsEntity> seatsEntity = seatsJpaRepository.findById(reservationsRequestDTO.getSeatId());
+
+        if (seatsEntity.isPresent() && seatsEntity.get().getStatus() == SeatsStatus.AVAILABLE) {
+            reservationsRequestDTO.setStatus(ReservationsStatus.APPLY);
+            reservationsJpaRepository.save(ReservationsRequestDTO.convertToEntity(reservationsRequestDTO));
+
+            Long userId = reservationsRequestDTO.getUserId();
+            Long concertId = reservationsRequestDTO.getConcertId();
+            Long dateId = reservationsRequestDTO.getDateId();
+            Long seatId = reservationsRequestDTO.getSeatId();
+            reservationsEntity = reservationsJpaRepository.findByUserIdAndConcertIdAndDateIdAndSeatId(userId, concertId, dateId, seatId);
+        } else {
+            throw new NullPointerException();
+        }
+        return ReservationsResponseDTO.convertToDTO(reservationsEntity);
+    }
+
 
 }

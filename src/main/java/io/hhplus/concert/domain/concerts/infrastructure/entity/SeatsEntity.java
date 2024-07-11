@@ -15,11 +15,11 @@ public class SeatsEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "seat_id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "concert_option_id", referencedColumnName = "id")
+    @JoinColumn(name = "concert_option_id")
     private DatesEntity concertOption;
 
     @Column(name = "num")

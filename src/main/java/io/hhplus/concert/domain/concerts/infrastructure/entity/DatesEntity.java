@@ -14,7 +14,7 @@ public class DatesEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "date_id")
     private Long concertOptionId;
 
     @Column(name = "concert_id")
