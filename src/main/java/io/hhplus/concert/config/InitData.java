@@ -1,6 +1,13 @@
 package io.hhplus.concert.config;
 
+import io.hhplus.concert.domain.concerts.business.entity.SeatsStatus;
+import io.hhplus.concert.domain.concerts.infrastructure.ConcertEntity;
+import io.hhplus.concert.domain.concerts.infrastructure.entity.DatesEntity;
+import io.hhplus.concert.domain.concerts.infrastructure.entity.SeatsEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.UsersEntity;
+import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.ConcertJpaRepository;
+import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.DatesJpaRepository;
+import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.SeatsJpaRepository;
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.UsersJpaRepository;
 import io.hhplus.concert.domain.tokens.business.entity.TokensStatus;
 import io.hhplus.concert.domain.tokens.infrastructure.entity.TokensEntity;
@@ -9,6 +16,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Component
@@ -16,10 +24,17 @@ public class InitData implements ApplicationRunner {
 
     private final TokensJpaRepository tokensJpaRepository;
     private final UsersJpaRepository usersJpaRepository;
+    private final ConcertJpaRepository concertJpaRepository;
+    private final DatesJpaRepository datesJpaRepository;
+    private final SeatsJpaRepository seatsJpaRepository;
 
-    public InitData(TokensJpaRepository tokensJpaRepository, UsersJpaRepository usersJpaRepository) {
+    public InitData(TokensJpaRepository tokensJpaRepository, UsersJpaRepository usersJpaRepository
+            , ConcertJpaRepository concertJpaRepository, DatesJpaRepository datesJpaRepository, SeatsJpaRepository seatsJpaRepository) {
         this.tokensJpaRepository = tokensJpaRepository;
         this.usersJpaRepository = usersJpaRepository;
+        this.concertJpaRepository = concertJpaRepository;
+        this.datesJpaRepository = datesJpaRepository;
+        this.seatsJpaRepository = seatsJpaRepository;
     }
 
     @Override
@@ -51,6 +66,48 @@ public class InitData implements ApplicationRunner {
         usersEntity2.setUserId(2L);
         usersEntity2.setPoint(20000L);
         usersJpaRepository.save(usersEntity2);
+
+        // 초기 데이터 생성 - 콘서트 테이블
+        ConcertEntity concertEntity1 = new ConcertEntity();
+        concertEntity1.setTitle("A 콘서트");
+        concertEntity1.setPrice(10000L);
+        concertJpaRepository.save(concertEntity1);
+
+        ConcertEntity concertEntity2 = new ConcertEntity();
+        concertEntity2.setTitle("B 콘서트");
+        concertEntity2.setPrice(20000L);
+        concertJpaRepository.save(concertEntity2);
+
+        // 초기 데이터 생성 - 콘서트 옵션 테이블
+        DatesEntity datesEntity1 = new DatesEntity();
+        datesEntity1.setConcertOptionId(1L);
+        datesEntity1.setConcertId(1L);
+        datesEntity1.setConcertDate(LocalDate.parse("2024-07-10"));
+        datesJpaRepository.save(datesEntity1);
+
+        DatesEntity datesEntity2 = new DatesEntity();
+        datesEntity2.setConcertOptionId(2L);
+        datesEntity2.setConcertId(1L);
+        datesEntity2.setConcertDate(LocalDate.parse("2024-07-20"));
+        datesJpaRepository.save(datesEntity2);
+
+        // 초기 데이터 생성 - 좌석 테이블
+        DatesEntity datesEntity = datesJpaRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("DatesEntity not found"));
+
+        SeatsEntity seatsEntity1 = new SeatsEntity();
+        seatsEntity1.setConcertOption(datesEntity);
+        seatsEntity1.setNum(1001L);
+        seatsEntity1.setStatus(SeatsStatus.AVAILABLE);
+        seatsEntity1.setLockUntil(LocalDateTime.now().plusMinutes(5));
+        seatsJpaRepository.save(seatsEntity1);
+
+        SeatsEntity seatsEntity2 = new SeatsEntity();
+        seatsEntity2.setConcertOption(datesEntity);
+        seatsEntity2.setNum(1101L);
+        seatsEntity2.setStatus(SeatsStatus.UNAVAILABLE);
+        seatsEntity2.setLockUntil(LocalDateTime.now().minusMinutes(5)); // 테스트를 위한 마이너스 만료 시간으로 설정
+        seatsJpaRepository.save(seatsEntity2);
 
     }
 
