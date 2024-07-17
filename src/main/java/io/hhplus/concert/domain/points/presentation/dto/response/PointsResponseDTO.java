@@ -1,7 +1,7 @@
 package io.hhplus.concert.domain.points.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.hhplus.concert.domain.points.business.entity.PointsType;
+import io.hhplus.concert.common.status.PointsType;
 import io.hhplus.concert.domain.points.infrastructure.entity.PointHistoryEntity;
 import io.hhplus.concert.domain.points.presentation.dto.request.PointsRequestDTO;
 

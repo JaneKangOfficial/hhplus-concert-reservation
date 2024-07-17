@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.points.presentation.dto.request;
 
-import io.hhplus.concert.domain.points.business.entity.PointsType;
+import io.hhplus.concert.common.status.PointsType;
 
 public class PointsRequestDTO {
 

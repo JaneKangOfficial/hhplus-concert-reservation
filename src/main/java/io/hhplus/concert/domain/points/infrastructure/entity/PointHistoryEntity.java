@@ -1,7 +1,8 @@
 package io.hhplus.concert.domain.points.infrastructure.entity;
 
-import io.hhplus.concert.domain.points.business.entity.PointsType;
+import io.hhplus.concert.common.status.PointsType;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
@@ -34,6 +35,7 @@ public class PointHistoryEntity {
     @Comment("생성일")
     private LocalDateTime createdAt;
 
+    @Builder
     public PointHistoryEntity(Long userId, PointsType type, Long point, Long total) {
         this.userId = userId;
         this.type = type;

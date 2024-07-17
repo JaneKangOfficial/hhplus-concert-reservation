@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.tokens.business.serviceImpl;
 
-import io.hhplus.concert.domain.tokens.business.entity.TokensStatus;
+import io.hhplus.concert.common.status.SeatReservationsStatus;
 import io.hhplus.concert.domain.tokens.business.repository.TokensRepository;
 import io.hhplus.concert.domain.tokens.business.service.TokensService;
 import io.hhplus.concert.domain.tokens.infrastructure.entity.TokensEntity;
@@ -31,19 +31,18 @@ public class TokensServiceImpl implements TokensService {
         TokenRequestQueue.addRequest(new TokensRequestDTO(userId));
     }
 
-    // 매 분마다 실행되는 스케줄러
-//    @Scheduled(cron = "* 1 * * * *")
     public void checkTokenExpiration() {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-        // 모든 토큰 조회
-        List<TokensEntity> tokensList = tokensRepository.findAll();
+        // 활성상태인 토큰 조회
+//        List<TokensEntity> tokensList = tokensRepository.findAll();
+        List<TokensEntity> tokensList = tokensRepository.findByStatus(SeatReservationsStatus.TokensStatus.ACTIVE);
 
         // 토큰별로 만료 체크 및 업데이트
         for (TokensEntity token : tokensList) {
             // 만료 시간이 현재 시간보다 미래이면 만료 상태로 변경
             if (token.getExpirationAt() != null && token.getExpirationAt().isBefore(currentDateTime)) {
-                token.setStatus(TokensStatus.EXPIRATION);
+                token.setStatus(SeatReservationsStatus.TokensStatus.EXPIRATION);
                 tokensRepository.save(token); // 상태 업데이트
             }
         }
@@ -62,6 +61,11 @@ public class TokensServiceImpl implements TokensService {
         return confirmToken(userId, userTokenInfo, newToken);
     }
 
+    @Override
+    public TokensResponseDTO findByToken(String token) {
+        return tokensRepository.findByToken(token);
+    }
+
     private String generateToken(Long userId) {
         return UUID.randomUUID().toString();
     }
@@ -74,16 +78,16 @@ public class TokensServiceImpl implements TokensService {
 
             // DTO로 변환해서 반환
             return new TokensResponseDTO(userId, newToken);
-        } else if (userTokenInfo.isPresent() && (userTokenInfo.get().getToken() == null || userTokenInfo.get().getStatus() == TokensStatus.EXPIRATION)) {
+        } else if (userTokenInfo.isPresent() && (userTokenInfo.get().getToken() == null || userTokenInfo.get().getStatus() == SeatReservationsStatus.TokensStatus.EXPIRATION)) {
             // 토큰이 만료된 경우 토큰 발행
             TokensEntity tokensEntity = new TokensEntity(userId, newToken);
             tokensRepository.updateSetTokenByUserId(userId, newToken);
 
             // DTO로 변환해서 반환
-            return TokensResponseDTO.converter(Optional.of(tokensEntity));
+            return TokensResponseDTO.convert(Optional.of(tokensEntity));
         } else {
             // DTO로 변환해서 반환
-            return TokensResponseDTO.converter(userTokenInfo);
+            return TokensResponseDTO.convert(userTokenInfo);
         }
     }
 

@@ -2,7 +2,7 @@ package io.hhplus.concert.reservations;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.concert.domain.concerts.business.service.ConcertsService;
-import io.hhplus.concert.domain.reservations.business.entity.ReservationsStatus;
+import io.hhplus.concert.common.status.ReservationsStatus;
 import io.hhplus.concert.domain.reservations.presentation.controller.ReservationsController;
 import io.hhplus.concert.domain.reservations.presentation.dto.request.ReservationsRequestDTO;
 import io.hhplus.concert.domain.reservations.presentation.dto.response.ReservationsResponseDTO;

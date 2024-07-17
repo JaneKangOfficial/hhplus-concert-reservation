@@ -2,7 +2,7 @@ package io.hhplus.concert.points;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.UsersResponseDTO;
-import io.hhplus.concert.domain.points.business.entity.PointsType;
+import io.hhplus.concert.common.status.PointsType;
 import io.hhplus.concert.domain.points.business.service.PointsService;
 import io.hhplus.concert.domain.points.presentation.controller.PointsController;
 import io.hhplus.concert.domain.points.presentation.dto.request.PointsRequestDTO;

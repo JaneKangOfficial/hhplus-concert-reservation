@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.reservations.infrastructure.entity;
 
-import io.hhplus.concert.domain.reservations.business.entity.ReservationsStatus;
+import io.hhplus.concert.common.status.ReservationsStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

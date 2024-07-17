@@ -1,5 +1,6 @@
-package io.hhplus.concert.domain.payments.business.entity;
+package io.hhplus.concert.domain.payments.infrastructure.entity;
 
+import io.hhplus.concert.common.status.PaymentsStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

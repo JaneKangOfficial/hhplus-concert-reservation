@@ -1,6 +1,7 @@
 package io.hhplus.concert.domain.concerts.presentation.controller;
 
 import io.hhplus.concert.domain.concerts.business.service.ConcertsService;
+import io.hhplus.concert.domain.concerts.presentation.dto.response.ConcertsResponseDTO;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.DatesResponseDTO;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.SeatsResponseDTO;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,14 @@ public class ConcertsController {
 
     public ConcertsController(ConcertsService concertsService) {
         this.concertsService = concertsService;
+    }
+
+    /**
+     * 콘서트 조회 API
+     */
+    @GetMapping("/")
+    public List<ConcertsResponseDTO> getConcerts() {
+        return concertsService.getConcerts();
     }
 
     /**

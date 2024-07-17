@@ -1,7 +1,7 @@
 package io.hhplus.concert.domain.payments.presentation.dto.request;
 
-import io.hhplus.concert.domain.payments.business.entity.PaymentsEntity;
-import io.hhplus.concert.domain.payments.business.entity.PaymentsStatus;
+import io.hhplus.concert.common.status.PaymentsStatus;
+import io.hhplus.concert.domain.payments.infrastructure.entity.PaymentsEntity;
 
 public class PaymentsRequestDTO {
 

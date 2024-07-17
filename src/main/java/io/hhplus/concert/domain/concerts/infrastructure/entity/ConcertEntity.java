@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.concerts.infrastructure;
+package io.hhplus.concert.domain.concerts.infrastructure.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

@@ -1,7 +1,8 @@
 package io.hhplus.concert.config;
 
-import io.hhplus.concert.domain.concerts.business.entity.SeatsStatus;
-import io.hhplus.concert.domain.concerts.infrastructure.ConcertEntity;
+import io.hhplus.concert.common.status.SeatReservationsStatus;
+import io.hhplus.concert.common.status.SeatsStatus;
+import io.hhplus.concert.domain.concerts.infrastructure.entity.ConcertEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.DatesEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.SeatsEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.UsersEntity;
@@ -9,7 +10,6 @@ import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.ConcertJp
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.DatesJpaRepository;
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.SeatsJpaRepository;
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.UsersJpaRepository;
-import io.hhplus.concert.domain.tokens.business.entity.TokensStatus;
 import io.hhplus.concert.domain.tokens.infrastructure.entity.TokensEntity;
 import io.hhplus.concert.domain.tokens.infrastructure.repositoryImpl.TokensJpaRepository;
 import org.springframework.boot.ApplicationArguments;
@@ -43,7 +43,7 @@ public class InitData implements ApplicationRunner {
         TokensEntity tokensEntity1 = new TokensEntity();
         tokensEntity1.setUserId(1L);
         tokensEntity1.setToken("2a9ec704-75b9-4993-aaf5-5a80cfc3de04");
-        tokensEntity1.setStatus(TokensStatus.ACTIVE);
+        tokensEntity1.setStatus(SeatReservationsStatus.TokensStatus.ACTIVE);
         tokensEntity1.setCreatedAt(LocalDateTime.now());
         tokensEntity1.setExpirationAt(LocalDateTime.now().plusMinutes(5));
         tokensJpaRepository.save(tokensEntity1);
@@ -51,7 +51,7 @@ public class InitData implements ApplicationRunner {
         TokensEntity tokensEntity2 = new TokensEntity();
         tokensEntity2.setUserId(2L);
         tokensEntity2.setToken("de8482a6-82fd-484f-8010-566e7a27e74d");
-        tokensEntity2.setStatus(TokensStatus.EXPIRATION);
+        tokensEntity2.setStatus(SeatReservationsStatus.TokensStatus.EXPIRATION);
         tokensEntity2.setCreatedAt(LocalDateTime.now());
         tokensEntity2.setExpirationAt(LocalDateTime.now().minusMinutes(5)); // 테스트를 위한 마이너스 만료 시간으로 설정
         tokensJpaRepository.save(tokensEntity2);
@@ -59,7 +59,7 @@ public class InitData implements ApplicationRunner {
         // 초기 데이터 생성 - 사용자 테이블
         UsersEntity usersEntity1 = new UsersEntity();
         usersEntity1.setUserId(1L);
-        usersEntity1.setPoint(10000L);
+        usersEntity1.setPoint(50000L);
         usersJpaRepository.save(usersEntity1);
 
         UsersEntity usersEntity2 = new UsersEntity();

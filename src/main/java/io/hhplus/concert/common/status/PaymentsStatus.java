@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.payments.business.entity;
+package io.hhplus.concert.common.status;
 
 /**
  * 결제 상태

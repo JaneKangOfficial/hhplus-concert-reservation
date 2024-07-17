@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.tokens.infrastructure.entity;
 
-import io.hhplus.concert.domain.tokens.business.entity.TokensStatus;
+import io.hhplus.concert.common.status.SeatReservationsStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ public class TokensEntity {
 
     @Comment("토큰 상태")
     @Enumerated(EnumType.STRING)
-    private TokensStatus status;
+    private SeatReservationsStatus.TokensStatus status;
 
     @Comment("생성일")
     private LocalDateTime createdAt;
@@ -38,7 +38,7 @@ public class TokensEntity {
     public TokensEntity(Long userId, String token) {
         this.userId = userId;
         this.token = token;
-        this.status = TokensStatus.ACTIVE;
+        this.status = SeatReservationsStatus.TokensStatus.ACTIVE;
         this.createdAt = LocalDateTime.now();
         this.expirationAt = LocalDateTime.now().plusMinutes(5);
     }

@@ -2,7 +2,7 @@ package io.hhplus.concert.reservations;
 
 import io.hhplus.concert.domain.concerts.business.serviceImpl.ConcertsServiceImpl;
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.SeatsJpaRepository;
-import io.hhplus.concert.domain.reservations.business.entity.ReservationsStatus;
+import io.hhplus.concert.common.status.ReservationsStatus;
 import io.hhplus.concert.domain.reservations.infrastructure.respositoryImpl.ReservationsJpaRepository;
 import io.hhplus.concert.domain.reservations.presentation.dto.request.ReservationsRequestDTO;
 import org.junit.jupiter.api.DisplayName;

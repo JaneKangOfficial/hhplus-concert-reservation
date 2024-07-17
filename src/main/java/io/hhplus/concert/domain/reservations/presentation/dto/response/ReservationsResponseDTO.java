@@ -1,10 +1,8 @@
 package io.hhplus.concert.domain.reservations.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.hhplus.concert.domain.reservations.business.entity.ReservationsStatus;
+import io.hhplus.concert.common.status.ReservationsStatus;
 import io.hhplus.concert.domain.reservations.infrastructure.entity.ReservationsEntity;
-
-import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReservationsResponseDTO {
@@ -81,8 +79,7 @@ public class ReservationsResponseDTO {
         this.status = status;
     }
 
-    public static ReservationsResponseDTO convertToDTO(Optional<ReservationsEntity> optReservationsEntity) {
-        ReservationsEntity reservationsEntity = optReservationsEntity.get();
+    public static ReservationsResponseDTO convertToDTO(ReservationsEntity reservationsEntity) {
         return new ReservationsResponseDTO(reservationsEntity.getUserId(), reservationsEntity.getConcertId(), reservationsEntity.getDateId(), reservationsEntity.getSeatId(), reservationsEntity.getStatus());
     }
 

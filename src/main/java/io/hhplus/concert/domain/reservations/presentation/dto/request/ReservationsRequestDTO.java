@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.reservations.presentation.dto.request;
 
-import io.hhplus.concert.domain.reservations.business.entity.ReservationsStatus;
+import io.hhplus.concert.common.status.ReservationsStatus;
 import io.hhplus.concert.domain.reservations.infrastructure.entity.ReservationsEntity;
 
 public class ReservationsRequestDTO {

@@ -1,8 +1,8 @@
 package io.hhplus.concert.payment;
 
-import io.hhplus.concert.domain.payments.business.entity.PaymentsEntity;
-import io.hhplus.concert.domain.payments.business.entity.PaymentsStatus;
+import io.hhplus.concert.common.status.PaymentsStatus;
 import io.hhplus.concert.domain.payments.business.serviceImpl.PaymentsServiceImpl;
+import io.hhplus.concert.domain.payments.infrastructure.entity.PaymentsEntity;
 import io.hhplus.concert.domain.payments.infrastructure.repositoryImpl.PaymentsJpaRepository;
 import io.hhplus.concert.domain.payments.presentation.dto.request.PaymentsRequestDTO;
 import io.hhplus.concert.domain.payments.presentation.dto.response.PaymentsResponseDTO;

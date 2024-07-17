@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.reservations.business.entity;
+package io.hhplus.concert.common.status;
 
 /**
  * 예약 상태

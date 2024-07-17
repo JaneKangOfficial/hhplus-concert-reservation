@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.concerts.business.entity;
+package io.hhplus.concert.common.status;
 
 /**
  * 좌석 상태

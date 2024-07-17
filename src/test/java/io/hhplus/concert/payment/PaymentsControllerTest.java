@@ -1,7 +1,7 @@
 package io.hhplus.concert.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.hhplus.concert.domain.payments.business.entity.PaymentsStatus;
+import io.hhplus.concert.common.status.PaymentsStatus;
 import io.hhplus.concert.domain.payments.business.service.PaymentsService;
 import io.hhplus.concert.domain.payments.presentation.controller.PaymentsController;
 import io.hhplus.concert.domain.payments.presentation.dto.request.PaymentsRequestDTO;

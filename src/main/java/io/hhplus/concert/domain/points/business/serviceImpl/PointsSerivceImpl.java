@@ -3,7 +3,7 @@ package io.hhplus.concert.domain.points.business.serviceImpl;
 import io.hhplus.concert.domain.concerts.business.repository.UsersRepository;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.UsersEntity;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.UsersResponseDTO;
-import io.hhplus.concert.domain.points.business.entity.PointsType;
+import io.hhplus.concert.common.status.PointsType;
 import io.hhplus.concert.domain.points.business.repository.PointsRepository;
 import io.hhplus.concert.domain.points.business.service.PointsService;
 import io.hhplus.concert.domain.points.presentation.dto.request.PointsRequestDTO;

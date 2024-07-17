@@ -38,7 +38,7 @@ public class TokensResponseDTO {
     }
 
 
-    public static TokensResponseDTO converter(Optional<TokensEntity> tokensEntityOptional) {
+    public static TokensResponseDTO convert(Optional<TokensEntity> tokensEntityOptional) {
         TokensEntity tokensEntity = tokensEntityOptional.get();
         return new TokensResponseDTO(tokensEntity.getUserId(), tokensEntity.getToken());
     }

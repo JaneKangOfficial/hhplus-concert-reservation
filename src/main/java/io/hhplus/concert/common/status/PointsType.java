@@ -1,4 +1,4 @@
-package io.hhplus.concert.domain.points.business.entity;
+package io.hhplus.concert.common.status;
 
 /**
  * 포인트 타입
