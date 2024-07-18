@@ -1,6 +1,11 @@
 package io.hhplus.concert.domain.concerts.business.serviceImpl;
 
+import io.hhplus.concert.common.exception.CustomException;
+import io.hhplus.concert.common.status.ReservationsStatus;
 import io.hhplus.concert.common.status.SeatsStatus;
+import io.hhplus.concert.domain.concerts.business.exception.ConcertsException;
+import io.hhplus.concert.domain.concerts.business.exception.DatesException;
+import io.hhplus.concert.domain.concerts.business.exception.SeatsException;
 import io.hhplus.concert.domain.concerts.business.repository.ConcertsRepository;
 import io.hhplus.concert.domain.concerts.business.repository.DatesRepository;
 import io.hhplus.concert.domain.concerts.business.repository.SeatsRepository;
@@ -11,11 +16,12 @@ import io.hhplus.concert.domain.concerts.infrastructure.entity.SeatsEntity;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.ConcertsResponseDTO;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.DatesResponseDTO;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.SeatsResponseDTO;
-import io.hhplus.concert.common.status.ReservationsStatus;
+import io.hhplus.concert.domain.reservations.business.exception.ReservationsException;
 import io.hhplus.concert.domain.reservations.business.repository.ReservationsRepository;
 import io.hhplus.concert.domain.reservations.infrastructure.entity.ReservationsEntity;
 import io.hhplus.concert.domain.reservations.presentation.dto.request.ReservationsRequestDTO;
 import io.hhplus.concert.domain.reservations.presentation.dto.response.ReservationsResponseDTO;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -61,6 +67,10 @@ public class ConcertsServiceImpl implements ConcertsService {
         // 콘서트 목록 가져오기
         List<ConcertEntity> concertEntityList = concertsRepository.findAll();
 
+        if (concertEntityList.isEmpty()) {
+            throw new CustomException(ConcertsException.EMPTY_CONCERT, LogLevel.INFO, concertEntityList);
+        }
+
         return concertEntityList.stream()
                 .map(ConcertsResponseDTO::convertToDTO)
                 .collect(Collectors.toList());
@@ -71,8 +81,11 @@ public class ConcertsServiceImpl implements ConcertsService {
     @Override
     public List<DatesResponseDTO> getDates(Long concertId) {
 
-
         List<DatesEntity> datesEntityList = datesRepository.findByConcertId(concertId);
+
+        if (datesEntityList.isEmpty()) {
+            throw new CustomException(DatesException.EMPTY_DATES, LogLevel.INFO, datesEntityList);
+        }
 
         return datesEntityList.stream()
                 .map(DatesResponseDTO::convertToDTO)
@@ -86,6 +99,11 @@ public class ConcertsServiceImpl implements ConcertsService {
         checkSeatsExpiration();
 
         List<Long> seatNumList = seatsRepository.findSeatNumbersByConcertIdAndDateId(concertId, dateId);
+
+        if (seatNumList.isEmpty()) {
+            throw new CustomException(SeatsException.EMPTY_SEATS, LogLevel.INFO, seatNumList);
+        }
+
         return seatNumList.stream()
                 .map(SeatsResponseDTO::new)
                 .collect(Collectors.toList());
@@ -114,7 +132,7 @@ public class ConcertsServiceImpl implements ConcertsService {
             reservationsEntity = reservationsRepository.save(ReservationsRequestDTO.convertToEntity(reservationsRequestDTO));
 
         } else {
-            throw new NullPointerException();
+            throw new CustomException(ReservationsException.UNAVAILABLE_RESERVATION, LogLevel.INFO, seatsEntity);
         }
         return ReservationsResponseDTO.convertToDTO(reservationsEntity);
     }

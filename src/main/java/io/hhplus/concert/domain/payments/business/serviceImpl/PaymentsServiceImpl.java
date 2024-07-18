@@ -1,5 +1,8 @@
 package io.hhplus.concert.domain.payments.business.serviceImpl;
 
+import io.hhplus.concert.common.exception.CustomException;
+import io.hhplus.concert.common.status.PaymentsStatus;
+import io.hhplus.concert.common.status.PointsType;
 import io.hhplus.concert.domain.concerts.business.repository.ConcertsRepository;
 import io.hhplus.concert.domain.concerts.business.repository.DatesRepository;
 import io.hhplus.concert.domain.concerts.business.repository.SeatsRepository;
@@ -8,7 +11,7 @@ import io.hhplus.concert.domain.concerts.infrastructure.entity.ConcertEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.DatesEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.SeatsEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.UsersEntity;
-import io.hhplus.concert.common.status.PaymentsStatus;
+import io.hhplus.concert.domain.payments.business.exception.PaymentsException;
 import io.hhplus.concert.domain.payments.business.repository.PaymentsHistoryRepository;
 import io.hhplus.concert.domain.payments.business.repository.PaymentsRepository;
 import io.hhplus.concert.domain.payments.business.service.PaymentsService;
@@ -16,11 +19,11 @@ import io.hhplus.concert.domain.payments.infrastructure.entity.PaymentsEntity;
 import io.hhplus.concert.domain.payments.infrastructure.entity.PaymentsHistoryEntity;
 import io.hhplus.concert.domain.payments.presentation.dto.request.PaymentsRequestDTO;
 import io.hhplus.concert.domain.payments.presentation.dto.response.PaymentsResponseDTO;
-import io.hhplus.concert.common.status.PointsType;
 import io.hhplus.concert.domain.points.business.repository.PointsRepository;
 import io.hhplus.concert.domain.points.infrastructure.entity.PointHistoryEntity;
 import io.hhplus.concert.domain.reservations.business.repository.ReservationsRepository;
 import io.hhplus.concert.domain.tokens.business.repository.TokensRepository;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -59,7 +62,7 @@ public class PaymentsServiceImpl implements PaymentsService {
         // 포인트 확인
         Optional<UsersEntity> userInfo = usersRepository.findByUserId(paymentsRequestDTO.getUserId());
         if (concertEntity.get().getPrice() > userInfo.get().getPoint()) {
-            throw new IllegalArgumentException("포인트가 부족합니다.");
+            throw new CustomException(PaymentsException.LACK_OF_POINT, LogLevel.INFO, userInfo.get().getPoint());
         }
 
         // 포인트 차감

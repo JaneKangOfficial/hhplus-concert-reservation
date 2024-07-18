@@ -1,13 +1,16 @@
 package io.hhplus.concert.domain.points.business.serviceImpl;
 
+import io.hhplus.concert.common.exception.CustomException;
+import io.hhplus.concert.common.status.PointsType;
 import io.hhplus.concert.domain.concerts.business.repository.UsersRepository;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.UsersEntity;
 import io.hhplus.concert.domain.concerts.presentation.dto.response.UsersResponseDTO;
-import io.hhplus.concert.common.status.PointsType;
+import io.hhplus.concert.domain.points.business.exception.PointsException;
 import io.hhplus.concert.domain.points.business.repository.PointsRepository;
 import io.hhplus.concert.domain.points.business.service.PointsService;
 import io.hhplus.concert.domain.points.presentation.dto.request.PointsRequestDTO;
 import io.hhplus.concert.domain.points.presentation.dto.response.PointsResponseDTO;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -35,6 +38,11 @@ public class PointsSerivceImpl implements PointsService {
 
         Long point = pointsRequestDTO.getPoint(); // 충전할 포인트
         Long currentTotal = userInfo.getPoint();    // 현재 포인트
+
+        if (point <= 0) {
+            throw new CustomException(PointsException.LOW_CHARGE, LogLevel.INFO, point);
+        }
+
         Long newTotal = 0L; // 잔액
         if (pointsRequestDTO.getType() == PointsType.CHARGE) {  // 충전
             newTotal = currentTotal + point;
