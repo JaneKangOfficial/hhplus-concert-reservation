@@ -18,6 +18,8 @@ fixture_monkey = "1.0.13"
 
 spring_doc = "2.0.2"
 
+servlet_api = "4.0.1"
+
 [plugins]
 kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin_kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
@@ -56,6 +58,9 @@ micrometer_tracing_bridge_brave = { module = "io.micrometer:micrometer-tracing-b
 micrometer_registry_prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
 
 springdoc_openapi_starter_webmvc_ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "spring_doc" }
+
+javax_servlet_api = { module = "javax.servlet:javax.servlet-api", version.ref = "servlet_api" }
+
 
 # test
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }

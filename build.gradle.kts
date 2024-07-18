@@ -30,6 +30,7 @@ dependencies {
     runtimeOnly(libs.h2)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.springdoc.openapi.starter.webmvc.ui)
+    compileOnly(libs.javax.servlet.api)
 }
 
 // about source and compilation
