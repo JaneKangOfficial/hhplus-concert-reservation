@@ -275,3 +275,64 @@ Response
 ```
 
 </details>
+
+<details>
+  <summary>동시성 문제</summary>
+
+### 1. 콘서트 서비스에서 동시성 이슈 발생할 수 있는 로직
+
+- 포인트 충전/사용
+- 좌석 예약
+
+### 2. Transaction의 범위, 낙관적 락, 비관적 락 테스트 검증
+
+1) 낙관적 락
+
+- @Version - 읽기 가능, 수정 불가능
+- Transaction의 범위 : Select, Update
+- 동시에 진입해서 Version 0을 읽은 여러 Thread들 중에서 처음 Update한 Thread만 성공
+- Update 성공 후에 Version 1로 변경됨
+- 이후 나머지 Version 0은 Rollback으로 실패
+- Version 1을 읽은 여러 Thread들 중에서 처음 Update한 Thread만 성공
+- Update 성공 후에 Version 2로 변경됨
+
+```
+Thread 1 { Select Vesrion0    Update     END }
+Thread 2 { Select Vesrion0                     Update Rollback }
+Thread 3 {                                     Select Vesrion1       Update       END }
+Thread 4 {                                     Select Vesrion1                          Update Rollback }
+```
+
+2) 비관적 락
+
+- @Lock(LockModeType.PESSIMISTIC_WRITE) - 읽기, 쓰기 모두 불가능
+
+- Transaction의 범위 -> Select, Update
+- Thread 1 {Select -> Update -> Thread 종료} -> Thread 2 {Select -> Update -> 스레드 종료} 가 순서대로 일어남
+- 실패 없이 모든 Thread Update
+- Thread 종료까지 대기해야 해서 범위가 크면 Timeout과 DB Connection Pool 점령 등 전체적인 성능 저하 문제가 발생
+
+```
+Thread 1 { Select    Update     END }
+Thread 2 {                           Select    Update     END }
+Thread 3 {                                                     Select    Update     END }
+```
+
+### 3. 결론
+
+1. 포인트 충전/사용
+
+- 낙관적 락 평균 소요 시간 (100회) : 280ms
+- 비관적 락 평균 소요 시간 (100회) : 558ms
+
+> 포인트 충전/사용은 들어오는 요청을 실패 없이 순서대로 처리해야 하는 로직이기 때문에 `비관적 락`이 적합하다고 판단
+
+2. 좌석 예약
+
+- 낙관적 락 평균 소요 시간 (100인) : 119ms
+- 비관적 락 평균 소요 시간 (100인) : 272ms
+
+> 좌석 예약은 1명만 성공하고 나머지는 실패해야 하는 로직이기 때문에 `낙관적 락`이 적합하다고 판단
+
+
+</details>
