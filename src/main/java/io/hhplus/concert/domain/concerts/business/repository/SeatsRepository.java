@@ -12,6 +12,8 @@ public interface SeatsRepository {
 
     void save(SeatsEntity seat);
 
+    // 비관적 락
+//    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<SeatsEntity> findById(Long seatId);
 
     List<Long> findSeatNumbersByConcertIdAndDateId(Long concertId, Long dateId);
@@ -19,5 +21,7 @@ public interface SeatsRepository {
     List<SeatsEntity> findAllByStatus(SeatsStatus seatsStatus);
 
     void updateStatusAndLockuntil(Long seatId, SeatsStatus seatsStatus, LocalDateTime localDateTime);
+
+    void updateStatusAndLockuntilWithLock(SeatsEntity seatsEntity);
 }
 

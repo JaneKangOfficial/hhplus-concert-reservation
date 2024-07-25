@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Transactional
 public interface SeatsJpaRepository extends JpaRepository<SeatsEntity, Long> {
 
     @Query(value = "SELECT s.num " +
@@ -25,4 +24,12 @@ public interface SeatsJpaRepository extends JpaRepository<SeatsEntity, Long> {
     @Modifying
     @Query("UPDATE SeatsEntity s SET s.status = :seatsStatus, s.lockUntil = :localDateTime WHERE s.id = :seatId")
     void updateStatusAndLockuntil(Long seatId, SeatsStatus seatsStatus, LocalDateTime localDateTime);
+
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE SeatsEntity s SET s.status = :seatsStatus, s.lockUntil = :lockUntil WHERE s.id = :seatId AND s.version = :version")
+    void updateStatusAndLockuntilWithLock(SeatsStatus seatsStatus, LocalDateTime lockUntil, Long seatId, Long version);
+//    @Query("UPDATE SeatsEntity s SET s.status = :seatsStatus, s.lockUntil = :lockUntil WHERE s.id = :seatId")
+//    void updateStatusAndLockuntilWithLock(SeatsStatus seatsStatus, LocalDateTime lockUntil, Long seatId);
 }

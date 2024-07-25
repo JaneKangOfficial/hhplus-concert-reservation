@@ -22,6 +22,9 @@ public class SeatsEntity {
     @JoinColumn(name = "concert_option_id")
     private DatesEntity concertOption;
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @Column(name = "num")
     private Long num;
 
@@ -30,6 +33,9 @@ public class SeatsEntity {
 
     @Column(name = "lock_until")
     private LocalDateTime lockUntil;
+
+    @Version    // 낙관적 락
+    private Long version;
 
     public SeatsEntity(Long id, DatesEntity concertOption, Long num, SeatsStatus status) {
         this.id = id;

@@ -48,4 +48,10 @@ public class SeatsRepositoryImpl implements SeatsRepository {
         seatsJpaRepository.updateStatusAndLockuntil(seatId, seatsStatus, localDateTime);
     }
 
+    @Override
+    public void updateStatusAndLockuntilWithLock(SeatsEntity seatsEntity) {
+        seatsJpaRepository.updateStatusAndLockuntilWithLock(seatsEntity.getStatus(), seatsEntity.getLockUntil(), seatsEntity.getId(), seatsEntity.getVersion());    // 낙관적 락
+//        seatsJpaRepository.updateStatusAndLockuntilWithLock(seatsEntity.getStatus(), seatsEntity.getLockUntil(), seatsEntity.getId());    // 비관적 락
+    }
+
 }
