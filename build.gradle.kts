@@ -31,6 +31,9 @@ dependencies {
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.springdoc.openapi.starter.webmvc.ui)
     compileOnly(libs.javax.servlet.api)
+    implementation(libs.spring.boot.starter.data.redis)
+    implementation(libs.redis.clients.jedis)
+//    implementation(libs.io.lettuce.core)
 }
 
 // about source and compilation

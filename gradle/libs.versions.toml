@@ -20,6 +20,9 @@ spring_doc = "2.0.2"
 
 servlet_api = "4.0.1"
 
+#lettuce_core = "6.3.2.RELEASE"
+jedis_version = "4.3.1"
+
 [plugins]
 kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin_kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
@@ -60,6 +63,10 @@ micrometer_registry_prometheus = { module = "io.micrometer:micrometer-registry-p
 springdoc_openapi_starter_webmvc_ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "spring_doc" }
 
 javax_servlet_api = { module = "javax.servlet:javax.servlet-api", version.ref = "servlet_api" }
+
+spring_boot_starter_data_redis = { module = "org.springframework.boot:spring-boot-starter-data-redis" }
+#io_lettuce_core = { module = "io.lettuce:lettuce-core" }
+redis_clients_jedis = { module = "redis.clients:jedis", version.ref = "jedis_version" }
 
 
 # test
