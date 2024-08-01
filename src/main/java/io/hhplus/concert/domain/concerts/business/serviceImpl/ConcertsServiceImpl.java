@@ -24,6 +24,7 @@ import io.hhplus.concert.domain.reservations.presentation.dto.response.Reservati
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.logging.LogLevel;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,13 +68,18 @@ public class ConcertsServiceImpl implements ConcertsService {
     }
 
     @Override
+    @Cacheable(value = "concertList", key = "#root.methodName")
     public List<ConcertsResponseDTO> getConcerts() {
+        Long startTime = System.currentTimeMillis();
         // 콘서트 목록 가져오기
         List<ConcertEntity> concertEntityList = concertsRepository.findAll();
 
         if (concertEntityList.isEmpty()) {
             throw new CustomException(ConcertsException.EMPTY_CONCERT, LogLevel.INFO, concertEntityList);
         }
+
+        Long endTime = System.currentTimeMillis();
+        log.debug("소요 시간 {}", (endTime - startTime) + "ms");
 
         return concertEntityList.stream()
                 .map(ConcertsResponseDTO::convertToDTO)
@@ -98,7 +104,8 @@ public class ConcertsServiceImpl implements ConcertsService {
 
     // 예약 가능 좌석 조회
     @Override
-    public List<SeatsResponseDTO> getSeats(Long concertId, Long dateId) {
+    public List<SeatsResponseDTO> getSeats(Long concertId, Long dateId, Long userId) {
+
         // 5분 지난 좌석 잠금 해제
         checkSeatsExpiration();
 
@@ -124,14 +131,14 @@ public class ConcertsServiceImpl implements ConcertsService {
     @Transactional
     public ReservationsResponseDTO reservations(ReservationsRequestDTO reservationsRequestDTO) {
         Long startTime = System.currentTimeMillis();
-        log.info("{} 유저 획득, reservationsRequestDTO.getUserId(): {}", Thread.currentThread().getName(), reservationsRequestDTO.getUserId());
+        log.debug("{} 유저 획득, reservationsRequestDTO.getUserId(): {}", Thread.currentThread().getName(), reservationsRequestDTO.getUserId());
 
         ReservationsEntity reservationsEntityRst = new ReservationsEntity();
 
         try {
             // 선택한 좌석이 예약 가능하면 예약 진행
             Optional<SeatsEntity> seatsEntity = seatsRepository.findById(reservationsRequestDTO.getSeatId());
-            log.info("{} , seatsEntity: {}", Thread.currentThread().getName(), seatsEntity);    // 같은 값 조회
+            log.debug("{} , seatsEntity: {}", Thread.currentThread().getName(), seatsEntity);    // 같은 값 조회
 
             if (seatsEntity.isPresent() && seatsEntity.get().getStatus() == SeatsStatus.AVAILABLE) {
                 seatsEntity.get().setUserId(reservationsRequestDTO.getUserId());
@@ -139,24 +146,22 @@ public class ConcertsServiceImpl implements ConcertsService {
                 // 선택한 좌석 잠금
 //                seatsRepository.updateStatusAndLockuntil(seatsEntity.get().getId(), SeatsStatus.UNAVAILABLE, currentDateTime.plusMinutes(5));
                 seatsRepository.updateStatusAndLockuntilWithLock(seatsEntity.get());
-                log.info("{} update, seatsEntity: {} ", Thread.currentThread().getName(), seatsEntity.get());
+                log.debug("{} update, seatsEntity: {} ", Thread.currentThread().getName(), seatsEntity.get());
 
                 // 예약
                 reservationsRequestDTO.setStatus(ReservationsStatus.APPLY);
-                ReservationsEntity reservationsEntity = reservationsRepository.save(ReservationsRequestDTO.convertToEntity(reservationsRequestDTO));
-                log.info("{} , reservationsEntity: {}", Thread.currentThread().getName(), reservationsEntity);
-
-                reservationsEntityRst = reservationsEntity;
+                reservationsEntityRst = reservationsRepository.save(ReservationsRequestDTO.convertToEntity(reservationsRequestDTO));
+                log.debug("{} , reservationsEntity: {}", Thread.currentThread().getName(), reservationsEntityRst);
 
             } else {
                 throw new CustomException(ReservationsException.UNAVAILABLE_RESERVATION, LogLevel.INFO, seatsEntity);
             }
         } catch (Exception e) {
-            log.info("Exception {} because: {}", Thread.currentThread().getName(), e.getMessage());
+            log.debug("Exception {} because: {}", Thread.currentThread().getName(), e.getMessage());
         }
 
         Long endTime = System.currentTimeMillis();
-        log.info("{} 유저 종료, 소요 시간 {}", Thread.currentThread().getName(), (endTime - startTime) + "ms");
+        log.debug("{} 유저 종료, 소요 시간 {}", Thread.currentThread().getName(), (endTime - startTime) + "ms");
 
         return ReservationsResponseDTO.convertToDTO(reservationsEntityRst);
     }

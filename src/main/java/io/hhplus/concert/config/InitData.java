@@ -1,5 +1,6 @@
 package io.hhplus.concert.config;
 
+import io.hhplus.concert.common.status.PointsType;
 import io.hhplus.concert.common.status.SeatReservationsStatus;
 import io.hhplus.concert.common.status.SeatsStatus;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.ConcertEntity;
@@ -10,6 +11,8 @@ import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.ConcertJp
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.DatesJpaRepository;
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.SeatsJpaRepository;
 import io.hhplus.concert.domain.concerts.infrastructure.repositoryImpl.UsersJpaRepository;
+import io.hhplus.concert.domain.points.infrastructure.entity.PointHistoryEntity;
+import io.hhplus.concert.domain.points.infrastructure.repositoryImpl.PointsJpaRepository;
 import io.hhplus.concert.domain.tokens.infrastructure.entity.TokensEntity;
 import io.hhplus.concert.domain.tokens.infrastructure.repositoryImpl.TokensJpaRepository;
 import org.springframework.boot.ApplicationArguments;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.stream.IntStream;
 
 @Component
 public class InitData implements ApplicationRunner {
@@ -27,14 +31,16 @@ public class InitData implements ApplicationRunner {
     private final ConcertJpaRepository concertJpaRepository;
     private final DatesJpaRepository datesJpaRepository;
     private final SeatsJpaRepository seatsJpaRepository;
+    private final PointsJpaRepository pointsJpaRepository;
 
     public InitData(TokensJpaRepository tokensJpaRepository, UsersJpaRepository usersJpaRepository
-            , ConcertJpaRepository concertJpaRepository, DatesJpaRepository datesJpaRepository, SeatsJpaRepository seatsJpaRepository) {
+            , ConcertJpaRepository concertJpaRepository, DatesJpaRepository datesJpaRepository, SeatsJpaRepository seatsJpaRepository, PointsJpaRepository pointsJpaRepository) {
         this.tokensJpaRepository = tokensJpaRepository;
         this.usersJpaRepository = usersJpaRepository;
         this.concertJpaRepository = concertJpaRepository;
         this.datesJpaRepository = datesJpaRepository;
         this.seatsJpaRepository = seatsJpaRepository;
+        this.pointsJpaRepository = pointsJpaRepository;
     }
 
     @Override
@@ -78,6 +84,13 @@ public class InitData implements ApplicationRunner {
         concertEntity2.setPrice(20000L);
         concertJpaRepository.save(concertEntity2);
 
+        IntStream.range(0, 50000).forEach(i -> {
+            ConcertEntity concertEntity = new ConcertEntity();
+            concertEntity.setTitle(i + " 콘서트");
+            concertEntity.setPrice(20000L);
+            concertJpaRepository.save(concertEntity);
+        });
+
         // 초기 데이터 생성 - 콘서트 옵션 테이블
         DatesEntity datesEntity1 = new DatesEntity();
         datesEntity1.setConcertOptionId(1L);
@@ -108,6 +121,15 @@ public class InitData implements ApplicationRunner {
         seatsEntity2.setStatus(SeatsStatus.UNAVAILABLE);
         seatsEntity2.setLockUntil(LocalDateTime.now().minusMinutes(5)); // 테스트를 위한 마이너스 만료 시간으로 설정
         seatsJpaRepository.save(seatsEntity2);
+
+        // 초기 데이터 생성 - 포인트 테이블
+        PointHistoryEntity pointHistoryEntity1 = new PointHistoryEntity();
+        pointHistoryEntity1.setUserId(1L);
+        pointHistoryEntity1.setTotal(100L);
+        pointHistoryEntity1.setPoint(200L);
+        pointHistoryEntity1.setType(PointsType.CHARGE);
+        pointHistoryEntity1.setCreatedAt(LocalDateTime.now());
+        pointsJpaRepository.save(pointHistoryEntity1);
 
     }
 
