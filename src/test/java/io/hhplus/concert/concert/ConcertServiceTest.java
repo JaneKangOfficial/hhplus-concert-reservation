@@ -59,6 +59,7 @@ public class ConcertServiceTest {
     @DisplayName("예약 가능 좌석 조회")
     void getSeats() {
         // given
+        Long userId = 1L;
         Long concertId = 1L;
         Long dateId = 1L;
         Long seatNum1 = 100L;
@@ -68,7 +69,7 @@ public class ConcertServiceTest {
         given(concertsRepository.findSeatNumbersByConcertIdAndDateId(concertId, dateId)).willReturn(numList);
 
         // when
-        List<SeatsResponseDTO> result = concertsServiceImpl.getSeats(concertId, dateId);
+        List<SeatsResponseDTO> result = concertsServiceImpl.getSeats(concertId, dateId, userId);
 
         // then
         assertEquals(2, result.size()); // 반환된 리스트 크기 2인지 확인

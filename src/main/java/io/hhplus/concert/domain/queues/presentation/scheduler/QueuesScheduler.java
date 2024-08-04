@@ -21,10 +21,10 @@ public class QueuesScheduler {
 
     @Scheduled(cron = "*/30 * * * * *")   // 30초 마다 호출
     @Transactional
-    public void entryActiveQueue() {
-        log.info("============= entryActiveQueue START =============");
-        queuesService.entryActiveQueue();
-        log.info("============= entryActiveQueue END =============");
+    public void enqueueActiveUsers() {
+        log.info("============= enqueueActiveUsers START =============");
+        queuesService.enqueueActiveUsers();
+        log.info("============= enqueueActiveUsers END =============");
     }
 
 //    @Scheduled(cron = "* */30 * * * *")   // 30분 마다 호출

@@ -12,7 +12,7 @@ public interface ConcertsService {
 
     List<DatesResponseDTO> getDates(Long concertId);
 
-    List<SeatsResponseDTO> getSeats(Long concertId, Long dateId);
+    List<SeatsResponseDTO> getSeats(Long concertId, Long dateId, Long userId);
 
     ReservationsResponseDTO reservations(ReservationsRequestDTO reservationsRequestDTO);
 

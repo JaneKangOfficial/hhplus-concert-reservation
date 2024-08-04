@@ -22,9 +22,9 @@ public class QueuesController {
     }
 
     // 테스트를 위한 호출
-    @GetMapping("/entryActiveQueue")
-    public void entryActiveQueue() {
-        queuesService.entryActiveQueue();
+    @GetMapping("/enqueueActiveUsers")
+    public void enqueueActiveUsers() {
+        queuesService.enqueueActiveUsers();
     }
 
     // 테스트를 위한 호출

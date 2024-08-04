@@ -4,7 +4,7 @@ import redis.clients.jedis.resps.Tuple;
 
 import java.util.List;
 
-public interface QueuesRedisRepository {
+public interface QueueRepository {
 
     void addQueue(Long userId, String key);
 

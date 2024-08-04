@@ -41,8 +41,8 @@ public class ConcertsController {
      * 예약 가능 좌석 API
      */
     @GetMapping("/{concertId}/{dateId}/seats")
-    public List<SeatsResponseDTO> getSeats(@PathVariable Long concertId, @PathVariable Long dateId) {
-        return concertsService.getSeats(concertId, dateId);
+    public List<SeatsResponseDTO> getSeats(@PathVariable Long concertId, @PathVariable Long dateId, @PathVariable Long userId) {
+        return concertsService.getSeats(concertId, dateId, userId);
     }
 
 

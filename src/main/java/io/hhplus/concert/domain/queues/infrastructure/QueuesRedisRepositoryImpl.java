@@ -1,6 +1,6 @@
 package io.hhplus.concert.domain.queues.infrastructure;
 
-import io.hhplus.concert.domain.queues.business.repository.QueuesRedisRepository;
+import io.hhplus.concert.domain.queues.business.repository.QueueRepository;
 import org.springframework.stereotype.Repository;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.resps.Tuple;
@@ -8,7 +8,7 @@ import redis.clients.jedis.resps.Tuple;
 import java.util.List;
 
 @Repository
-public class QueuesRedisRepositoryImpl implements QueuesRedisRepository {
+public class QueuesRedisRepositoryImpl implements QueueRepository {
 
     private final Jedis jedis;
 

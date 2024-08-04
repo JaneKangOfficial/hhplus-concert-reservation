@@ -58,7 +58,8 @@ public class ConcertsControllerTest {
         // given
         Long concertId = 1L;
         Long dateId = 1L;
-        given(concertsService.getSeats(concertId, dateId)).willReturn(Arrays.asList(
+        Long userId = 1L;
+        given(concertsService.getSeats(concertId, dateId, userId)).willReturn(Arrays.asList(
                 new SeatsResponseDTO(100L),
                 new SeatsResponseDTO(200L)
         ));

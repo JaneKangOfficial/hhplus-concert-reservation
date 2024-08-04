@@ -21,6 +21,7 @@ import io.hhplus.concert.domain.payments.presentation.dto.request.PaymentsReques
 import io.hhplus.concert.domain.payments.presentation.dto.response.PaymentsResponseDTO;
 import io.hhplus.concert.domain.points.business.repository.PointsRepository;
 import io.hhplus.concert.domain.points.infrastructure.entity.PointHistoryEntity;
+import io.hhplus.concert.domain.queues.business.repository.QueueRepository;
 import io.hhplus.concert.domain.reservations.business.repository.ReservationsRepository;
 import io.hhplus.concert.domain.tokens.business.repository.TokensRepository;
 import org.springframework.boot.logging.LogLevel;
@@ -30,6 +31,8 @@ import java.util.Optional;
 
 @Service
 public class PaymentsServiceImpl implements PaymentsService {
+    
+    private static final String ACTIVE_QUEUES = "activeQueues";
 
     private final PaymentsRepository paymentsRepository;
     private final ConcertsRepository concertsRepository;
@@ -40,8 +43,11 @@ public class PaymentsServiceImpl implements PaymentsService {
     private final SeatsRepository seatsRepository;
     private final PointsRepository pointsRepository;
     private final TokensRepository tokensRepository;
+    private final QueueRepository queueRepository;
 
-    public PaymentsServiceImpl(PaymentsRepository paymentsRepository, ConcertsRepository concertsRepository, UsersRepository usersRepository, PaymentsHistoryRepository paymentsHistoryRepository, ReservationsRepository reservationsRepository, DatesRepository datesRepository, SeatsRepository seatsRepository, PointsRepository pointsRepository, TokensRepository tokensRepository) {
+    public PaymentsServiceImpl(PaymentsRepository paymentsRepository, ConcertsRepository concertsRepository, UsersRepository usersRepository
+            , PaymentsHistoryRepository paymentsHistoryRepository, ReservationsRepository reservationsRepository, DatesRepository datesRepository
+            , SeatsRepository seatsRepository, PointsRepository pointsRepository, TokensRepository tokensRepository, QueueRepository queueRepository) {
         this.paymentsRepository = paymentsRepository;
         this.concertsRepository = concertsRepository;
         this.usersRepository = usersRepository;
@@ -51,6 +57,7 @@ public class PaymentsServiceImpl implements PaymentsService {
         this.seatsRepository = seatsRepository;
         this.pointsRepository = pointsRepository;
         this.tokensRepository = tokensRepository;
+        this.queueRepository = queueRepository;
     }
 
     @Override
@@ -88,6 +95,9 @@ public class PaymentsServiceImpl implements PaymentsService {
 
         // 결제
         PaymentsEntity paymentsEntity = paymentsRepository.save(paymentsRequestDTO.convertToEntity(paymentsRequestDTO, concertEntity.get().getPrice(), PaymentsStatus.COMPLETE));
+
+        // 활성 토큰 만료
+        queueRepository.expireQueue(ACTIVE_QUEUES + ":" + paymentsRequestDTO.getUserId(), 1);  // TTL 설정 1초 후 만료되도록
 
         // 결제 히스토리
         PaymentsHistoryEntity paymentsHistoryEntity = PaymentsHistoryEntity.builder()

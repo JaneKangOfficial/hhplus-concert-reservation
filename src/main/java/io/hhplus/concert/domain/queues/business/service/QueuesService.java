@@ -4,7 +4,7 @@ public interface QueuesService {
 
     Long entryWaitingQueue(Long userId);
 
-    void entryActiveQueue();
+    void enqueueActiveUsers();
 
 //    void expiredQueue();
 
