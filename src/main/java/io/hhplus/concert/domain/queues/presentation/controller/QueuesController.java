@@ -16,9 +16,9 @@ public class QueuesController {
         this.queuesService = queuesService;
     }
 
-    @GetMapping("/entryWaitingQueue")
-    public Long entryWaitingQueue(@RequestParam Long userId) {
-        return queuesService.entryWaitingQueue(userId);
+    @GetMapping("/enqueueWaitUsers")
+    public Long enqueueWaitUsers(@RequestParam Long userId) {
+        return queuesService.enqueueWaitUsers(userId);
     }
 
     // 테스트를 위한 호출

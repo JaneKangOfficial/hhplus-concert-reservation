@@ -30,7 +30,7 @@ public class QueuesServiceImpl implements QueuesService {
     // 대기열 진입
     @Override
     @Transactional
-    public Long entryWaitingQueue(Long userId) {
+    public Long enqueueWaitUsers(Long userId) {
 
         // 대기열에 있는가? 순서 확인
         Long rank = queueRepository.getRank(userId, WAIT_QUEUES);
