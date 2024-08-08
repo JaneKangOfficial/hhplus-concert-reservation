@@ -386,3 +386,151 @@ Thread 3 {                                                     Select    Update 
   >4. 대기상태에서 삭제하고 TTL과 함께 활성상태로 생성한다.
 
 </details>
+
+<details>
+  <summary>Index</summary>
+
+### 1. EXPLAIN 이해
+
+> type : 테이블 조인 시 사용되는 연산 유형, 테이블에서 아래로 갈수록 성능이 더 좋다.
+
+|              |               |
+|:------------:|:-------------:|
+|     ALL      |   전체 테이블 스캔   |
+|    index     |    인덱스 스캔     | 
+|    range     |     범위 스캔     | 
+|     ref      |    인덱스 탐색     | 
+|    eq_ref    | 정확한 일치 인덱스 탐색 | 
+| const/system |   상수 테이블 접근   | 
+
+> possible_keys : 쿼리 실행에 사용될 수 있는 인덱스의 목록을 나타낸다. 이 컬럼이 비어 있으면 인덱스가 없다는 의미
+
+> rows : 쿼리 실행 시 이만큼의 rows를 읽었다. 이 값이 클수록 성능이 저하될 가능성이 있다.
+
+> filtered : 조건을 만족하는 행의 비율을 나타낸다. 필터링된 행의 비율 (100이면 100% 필터링 되었다 = PK)
+
+> Extra : 쿼리의 실행 과정에서 추가적인 정보를 제공한다. 주로 쿼리 실행의 세부 사항을 나타낸다.
+
+|                       |                                 |
+|:---------------------:|:-------------------------------:|
+|      Using where      |          WHERE 절이 사용됨           |
+|      Using index      |        인덱스만 사용하여 데이터를 읽음        | 
+|    Using filesort     |         정렬을 위한 파일 정렬 사용         |
+|    Using temporary    |      임시 테이블을 사용하여 쿼리를 처리함       | 
+| Using index condition | 인덱스를 스캔하면서 쿼리의 조건을 적용하여 성능을 개선함 |
+
+### 2. 예약 가능 좌석 조회
+
+```
+
+SELECT COUNT(*) FROM seat; -- 100000건
+SELECT COUNT(*) FROM concert_option; -- 100000건
+
+EXPLAIN SELECT *
+FROM seat s
+JOIN concert_option co 
+     ON s.seat_concert_option_id = co.id
+WHERE co.concert_id = 90000 
+     AND s.seat_concert_option_id = 90000 
+     AND s.status = 'AVAILABLE';
+
+```
+
+---
+
+##### 인덱스 설정 전
+
+- `평균 속도 : 294.6ms`
+- mysql은 innoDB로 처음 실행 시에 데이터를 메모리에 적재시켜 다음 실행 시 소요되는 속도를 줄일 수 있다고 한다.
+- 그래서 인덱스보다 살짝 빠를 수는 있지만 인덱스가 월등히 빠르다.
+- innoDB 사용 확인은 `show engines;` 명령어로 확인이 가능하다
+
+| type  | possible_keys | rows  | filtered |    Extra    |
+|:-----:|:-------------:|:-----:|:--------:|:-----------:|
+| const |    PRIMARY    |   1   |   100    |             |
+|  ALL  |               | 99822 |    5     | Using where |
+
+- const은 가장 빠른 type이다. PRIMARY 사용으로 단 하나의 rows 를 읽었으며 100% 필터링하였다. = 빠르다
+- type이 ALL로 데이터 풀스캔을 하였고 Using where 조건절 사용으로 99822의 rows를 읽었다 = 느리다
+
+--- 
+
+##### 하나의 인덱스 설정 후
+
+- idx_seat_concert_option_id_status 만 설정하였을 경우
+- `평균 속도 : 295.3ms`
+
+
+- idx_seat_concert_option_id_status (seat_concert_option_id, status)
+    - seat_id는 PK로 하나의 값만 가지며 높은 카디널리티를 가졌다. 이미 index 설정이 되어 있다
+    - seat_concert_option_id는 FK로 조건절에서 조인하기 위해 자주 사용한다
+    - status는 seat_concert_option_id 별로 좌석의 상태값을 조회해야 하므로 index 설정
+
+| type  |           possible_keys           | rows  | filtered |         Extra         |
+|:-----:|:---------------------------------:|:-----:|:--------:|:---------------------:|
+| const |              PRIMARY              |   1   |   100    |                       |
+|  ref  | idx_seat_concert_option_id_status | 18810 |   100    | Using index condition |
+
+- const은 가장 빠른 type이다. PRIMARY 사용으로 단 하나의 rows 를 읽었으며 100% 필터링하였다. = 빠르다
+- idx_seat_concert_option_id_status 인덱스 사용으로 18810 rows를 100% 필터링하였다. = 인덱스 설정 전 풀스캔보다 읽는 rows가 적다 = 빠르다
+
+--- 
+
+##### 두 개의 인덱스 설정 후
+
+- idx_seat_concert_option_id_status idx_concert_option_concert_id 설정하였을 경우
+- `평균 속도 : 237.2ms`
+- `속도가 확실히 빨라졌다!`
+
+
+- idx_seat_concert_option_id_status (seat_concert_option_id, status)
+    - seat_id는 PK로 하나의 값만 가지며 높은 카디널리티를 가졌다. 이미 index 설정이 되어 있다
+    - seat_concert_option_id는 FK로 조건절에서 조인하기 위해 자주 사용한다
+    - status는 seat_concert_option_id 별로 좌석의 상태값을 조회해야 하므로 index 설정
+
+- idx_concert_option_concert_id (concert_id)
+    - id는 PK로 하나의 값만 가지며 높은 카디널리티를 가졌다. 이미 index 설정이 되어 있다
+    - concert_id는 FK로 조건절에서 조인하기 위해 자주 사용한다
+
+| type  |             possible_keys              | rows  | filtered |         Extra         |
+|:-----:|:--------------------------------------:|:-----:|:--------:|:---------------------:|
+| const | PRIMARY, idx_concert_option_concert_id |   1   |   100    |                       |
+|  ref  |   idx_seat_concert_option_id_status    | 18810 |   100    | Using index condition |
+
+- const은 가장 빠른 type이다. PRIMARY 와 idx_concert_option_concert_id 인덱스 사용으로 단 하나의 rows 를 읽었으며 100% 필터링하였다. = 빠르다
+- idx_seat_concert_option_id_status 인덱스 사용으로 18810 rows를 100% 필터링하였다 = 빠르다
+- WHERE 조건절에서 가장 먼저 사용되는 concert_id를 인덱스 설정하여 속도를 더 단축하였다 = 빠르다
+- SELECT * 를 사용하면 모든 컬럼을 가져와야 하기 때문에 느려질 수 있으므로 필요한 컬럼만 작성하는 것이 좋다
+
+</details>
+
+<details>
+  <summary>Event Driven</summary>
+
+### 1. 서비스를 분리할 트랜잭션
+
+##### 결제 트랜잭션
+
+- 중요한 메인 로직(결제)과 메인과는 상관없는 부가 로직(히스토리 저장)이 같은 Transaction에 존재한다
+- 만약 부가 로직 실행 시간이 길면 메인 로직 실행 또한 느려진다
+- 하나의 단일 트랜잭션이기 때문에 메인 로직이 실패하면 부가 로직이 롤백되고, 부가 로직이 실패하면 메인 로직이 롤백된다
+- 하지만 부가 로직이 실패한다고 메인 로직이 롤백될 필요는 없다
+- 데이터의 일관성을 보장할 수 없다
+
+### 2. 서비스 분리 (MSA : MicroService Architecture)
+
+- 서비스 규모가 확장되면 여러 개의 작은 규모 서비스로 분리할 필요가 있다
+- 각 서비스마다 분리하여 관리한다 (예약 서비스, 결제 서비스, 좌석 서비스,..)
+- 부하가 생기는 서비스만 확장하여 성능을 최적화할 수 있다
+- 독립적 운영으로 문제가 발생하더라도 다른 서비스에 영향을 미치지 않는다
+- 데이터의 일관성을 관리할 수 있다
+
+### 3. Event Driven
+
+- 이벤트 발행 서비스, 이벤트 구독 서비스가 있다
+- 비동기로 처리되기 때문에 이벤트를 발행한 후 즉시 다른 작업을 수행할 수 있다 = 처리 속도가 빠르다
+- 특정 이벤트에 부하가 생기면 해당 이벤트만 확장하여 부하를 해소할 수 있다
+- 부가 로직을 Event Driven 방식으로 수정한다
+- 트랜잭션을 분리하고 이벤트에 AFTER_COMMIT 을 사용하여 메인 로직이 COMMIT된 이후에 부가 로직을 실행하도록 한다
+
+</details>
