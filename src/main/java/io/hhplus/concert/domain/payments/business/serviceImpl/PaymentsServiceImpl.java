@@ -11,6 +11,7 @@ import io.hhplus.concert.domain.concerts.infrastructure.entity.ConcertEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.DatesEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.SeatsEntity;
 import io.hhplus.concert.domain.concerts.infrastructure.entity.UsersEntity;
+import io.hhplus.concert.domain.payments.business.event.PaymentEventPublisher;
 import io.hhplus.concert.domain.payments.business.exception.PaymentsException;
 import io.hhplus.concert.domain.payments.business.repository.PaymentsHistoryRepository;
 import io.hhplus.concert.domain.payments.business.repository.PaymentsRepository;
@@ -19,48 +20,49 @@ import io.hhplus.concert.domain.payments.infrastructure.entity.PaymentsEntity;
 import io.hhplus.concert.domain.payments.infrastructure.entity.PaymentsHistoryEntity;
 import io.hhplus.concert.domain.payments.presentation.dto.request.PaymentsRequestDTO;
 import io.hhplus.concert.domain.payments.presentation.dto.response.PaymentsResponseDTO;
+import io.hhplus.concert.domain.points.business.event.PointEventPublisher;
 import io.hhplus.concert.domain.points.business.repository.PointsRepository;
 import io.hhplus.concert.domain.points.infrastructure.entity.PointHistoryEntity;
 import io.hhplus.concert.domain.queues.business.repository.QueueRepository;
-import io.hhplus.concert.domain.reservations.business.repository.ReservationsRepository;
-import io.hhplus.concert.domain.tokens.business.repository.TokensRepository;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 public class PaymentsServiceImpl implements PaymentsService {
-    
+
     private static final String ACTIVE_QUEUES = "activeQueues";
 
     private final PaymentsRepository paymentsRepository;
     private final ConcertsRepository concertsRepository;
     private final UsersRepository usersRepository;
     private final PaymentsHistoryRepository paymentsHistoryRepository;
-    private final ReservationsRepository reservationsRepository;
     private final DatesRepository datesRepository;
     private final SeatsRepository seatsRepository;
     private final PointsRepository pointsRepository;
-    private final TokensRepository tokensRepository;
     private final QueueRepository queueRepository;
+    private final PaymentEventPublisher paymentEventPublisher;
+    private final PointEventPublisher pointEventPublisher;
 
     public PaymentsServiceImpl(PaymentsRepository paymentsRepository, ConcertsRepository concertsRepository, UsersRepository usersRepository
-            , PaymentsHistoryRepository paymentsHistoryRepository, ReservationsRepository reservationsRepository, DatesRepository datesRepository
-            , SeatsRepository seatsRepository, PointsRepository pointsRepository, TokensRepository tokensRepository, QueueRepository queueRepository) {
+            , PaymentsHistoryRepository paymentsHistoryRepository, DatesRepository datesRepository, SeatsRepository seatsRepository
+            , PointsRepository pointsRepository, QueueRepository queueRepository, PaymentEventPublisher paymentEventPublisher, PointEventPublisher pointEventPublisher) {
         this.paymentsRepository = paymentsRepository;
         this.concertsRepository = concertsRepository;
         this.usersRepository = usersRepository;
         this.paymentsHistoryRepository = paymentsHistoryRepository;
-        this.reservationsRepository = reservationsRepository;
         this.datesRepository = datesRepository;
         this.seatsRepository = seatsRepository;
         this.pointsRepository = pointsRepository;
-        this.tokensRepository = tokensRepository;
         this.queueRepository = queueRepository;
+        this.paymentEventPublisher = paymentEventPublisher;
+        this.pointEventPublisher = pointEventPublisher;
     }
 
     @Override
+    @Transactional
     public PaymentsResponseDTO payments(String token, PaymentsRequestDTO paymentsRequestDTO) {
 
         // 콘서트 정보 가져오기
@@ -78,15 +80,6 @@ public class PaymentsServiceImpl implements PaymentsService {
         // 포인트 저장
         usersRepository.updatePointByUserId(new UsersEntity(paymentsRequestDTO.getUserId(), total));
 
-        // 포인트 히스토리 저장
-        PointHistoryEntity pointHistoryEntity = PointHistoryEntity.builder()
-                .userId(paymentsRequestDTO.getUserId())
-                .point(concertEntity.get().getPrice())
-                .type(PointsType.USE)
-                .total(total)
-                .build();
-        pointsRepository.save(pointHistoryEntity);
-
         // 날짜 정보 가져오기
         Optional<DatesEntity> datesEntity = datesRepository.findById(paymentsRequestDTO.getDateId());
 
@@ -99,18 +92,27 @@ public class PaymentsServiceImpl implements PaymentsService {
         // 활성 토큰 만료
         queueRepository.expireQueue(ACTIVE_QUEUES + ":" + paymentsRequestDTO.getUserId(), 1);  // TTL 설정 1초 후 만료되도록
 
-        // 결제 히스토리
-        PaymentsHistoryEntity paymentsHistoryEntity = PaymentsHistoryEntity.builder()
-                .paymentId(paymentsEntity.getId())
-                .userId(paymentsRequestDTO.getUserId())
-                .concertTitle(concertEntity.get().getTitle())
-                .concertPrice(concertEntity.get().getPrice())
-                .concertDate(datesEntity.get().getConcertDate())
-                .concertSeatNum(seatsEntity.get().getNum())
-                .build();
+        // 부가로직인 포인트 히스토리 저장 -> 이벤트
+        pointEventPublisher.savePointHistory(new PointHistoryEntity(paymentsRequestDTO.getUserId(), PointsType.USE, concertEntity.get().getPrice(), total));
 
-        paymentsHistoryRepository.save(paymentsHistoryEntity);
+        // 부가로직인 결제 히스토리 저장 -> 이벤트
+        paymentEventPublisher.savePaymentHistory(new PaymentsHistoryEntity(paymentsEntity.getId(), paymentsRequestDTO.getUserId(), concertEntity.get().getTitle(), concertEntity.get().getPrice(), datesEntity.get().getConcertDate(), seatsEntity.get().getNum()));
 
         return PaymentsResponseDTO.convertToDTO(paymentsEntity);
     }
+
+    // payments Transaction이 commit된 후에 실행되는 event
+    @Override
+    public void calculatePoint(PointHistoryEntity pointHistoryEntity) {
+        // 포인트 히스토리 저장
+        pointsRepository.save(pointHistoryEntity);
+    }
+
+    // payments Transaction이 commit된 후에 실행되는 event
+    @Override
+    public void savePaymentHistory(PaymentsHistoryEntity paymentsHistoryEntity) {
+        // 결제 히스토리 저장
+        paymentsHistoryRepository.save(paymentsHistoryEntity);
+    }
+
 }
