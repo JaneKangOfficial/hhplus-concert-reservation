@@ -33,6 +33,7 @@ dependencies {
     compileOnly(libs.javax.servlet.api)
     implementation(libs.spring.boot.starter.data.redis)
     implementation(libs.redis.clients.jedis)
+    implementation(libs.mysql.connector)
 //    implementation(libs.io.lettuce.core)
 }
 
