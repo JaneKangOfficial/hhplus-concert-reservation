@@ -1,9 +1,11 @@
 package io.hhplus.concert.domain.payments.presentation.event;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.concert.domain.payments.business.event.PaymentEvent;
 import io.hhplus.concert.domain.payments.business.message.PaymentMessageOutboxWriter;
 import io.hhplus.concert.domain.payments.business.message.PaymentMessageSender;
+import io.hhplus.concert.domain.payments.business.message.PaymentOutbox;
 import io.hhplus.concert.domain.payments.business.service.PaymentsService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,20 @@ public class PaymentEventListener {
         this.paymentMessageOutboxWriter = paymentMessageOutboxWriter;
         this.objectMapper = objectMapper;
         this.paymentMessageSender = paymentMessageSender;
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    public void saveOutbox(PaymentEvent event) throws JsonProcessingException {
+        // outbox INIT 상태로 저장 / 무조건 트랜잭션 안에 있어야 한다
+        String paymentEventJson = objectMapper.writeValueAsString(event);
+        paymentMessageOutboxWriter.save(PaymentOutbox.convertToEntity(event.getPaymentId(), "INIT", "PAYMENT", paymentEventJson));
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void send(PaymentEvent paymentEvent) {
+        // 카프카 메세지 발행
+        paymentMessageSender.send(paymentEvent);
     }
 
     // 비동기로 주체의 트랜잭션이 커밋된 후에 수행
