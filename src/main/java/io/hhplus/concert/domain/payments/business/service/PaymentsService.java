@@ -11,4 +11,6 @@ public interface PaymentsService {
     void savePaymentHistory(PaymentEvent paymentEvent);
 
     void calculatePoint(PointEvent pointEvent);
+
+    void resendKafka();
 }

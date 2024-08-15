@@ -30,6 +30,7 @@ import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -119,5 +120,14 @@ public class PaymentsServiceImpl implements PaymentsService {
     public void savePaymentHistory(PaymentEvent paymentEvent) {
         // 결제 히스토리 저장
         paymentsHistoryRepository.save(PaymentEvent.convertToEntity(paymentEvent));
+    }
+
+    @Override
+    public void resendKafka() {
+        List<PaymentEvent> paymentEventList = paymentMessageOutboxWriter.getOutboxInit("INIT");
+
+        // 카프카 메세지 재발행
+        paymentEventList.stream().forEach(paymentEvent -> paymentMessageSender.send(paymentEvent));
+
     }
 }
