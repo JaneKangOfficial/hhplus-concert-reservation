@@ -1,7 +1,7 @@
 package io.hhplus.concert.domain.points.infrastructure.event;
 
+import io.hhplus.concert.domain.points.business.event.PointEvent;
 import io.hhplus.concert.domain.points.business.event.PointEventPublisher;
-import io.hhplus.concert.domain.points.infrastructure.entity.PointHistoryEntity;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ public class PointCoreEventPublisher implements PointEventPublisher {
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
-    public void savePointHistory(PointHistoryEntity pointHistoryEntity) {
-        applicationEventPublisher.publishEvent(pointHistoryEntity);
+    public void savePointHistory(PointEvent pointEvent) {
+        applicationEventPublisher.publishEvent(pointEvent);
     }
 }

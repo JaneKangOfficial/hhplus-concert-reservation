@@ -3,8 +3,10 @@ package io.hhplus.concert.domain.payments.presentation.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.hhplus.concert.common.status.PaymentsStatus;
 import io.hhplus.concert.domain.payments.infrastructure.entity.PaymentsEntity;
+import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Data
 public class PaymentsResponseDTO {
 
     private Long paymentId;
@@ -32,59 +34,4 @@ public class PaymentsResponseDTO {
         return new PaymentsResponseDTO(paymentsEntity.getId(), paymentsEntity.getUserId(), paymentsEntity.getTotal(), paymentsEntity.getStatus());
     }
 
-    public Long getPaymentId() {
-        return paymentId;
-    }
-
-    public void setPaymentId(Long paymentId) {
-        this.paymentId = paymentId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Long getConcertId() {
-        return concertId;
-    }
-
-    public void setConcertId(Long concertId) {
-        this.concertId = concertId;
-    }
-
-    public Long getDateId() {
-        return dateId;
-    }
-
-    public void setDateId(Long dateId) {
-        this.dateId = dateId;
-    }
-
-    public Long getSeatId() {
-        return seatId;
-    }
-
-    public void setSeatId(Long seatId) {
-        this.seatId = seatId;
-    }
-
-    public Long getTotal() {
-        return total;
-    }
-
-    public void setTotal(Long total) {
-        this.total = total;
-    }
-
-    public PaymentsStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(PaymentsStatus status) {
-        this.status = status;
-    }
 }

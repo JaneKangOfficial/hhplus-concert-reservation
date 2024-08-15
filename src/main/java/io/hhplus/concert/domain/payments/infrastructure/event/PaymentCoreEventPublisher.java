@@ -1,7 +1,7 @@
 package io.hhplus.concert.domain.payments.infrastructure.event;
 
+import io.hhplus.concert.domain.payments.business.event.PaymentEvent;
 import io.hhplus.concert.domain.payments.business.event.PaymentEventPublisher;
-import io.hhplus.concert.domain.payments.infrastructure.entity.PaymentsHistoryEntity;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +14,8 @@ public class PaymentCoreEventPublisher implements PaymentEventPublisher {
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
-    public void savePaymentHistory(PaymentsHistoryEntity paymentsHistoryEntity) {
-        applicationEventPublisher.publishEvent(paymentsHistoryEntity);
+    public void savePaymentHistory(PaymentEvent paymentEvent) {
+        applicationEventPublisher.publishEvent(paymentEvent);
     }
 
 }

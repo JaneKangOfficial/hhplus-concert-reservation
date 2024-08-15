@@ -1,7 +1,7 @@
 package io.hhplus.concert.domain.points.presentation.event;
 
 import io.hhplus.concert.domain.payments.business.service.PaymentsService;
-import io.hhplus.concert.domain.points.infrastructure.entity.PointHistoryEntity;
+import io.hhplus.concert.domain.points.business.event.PointEvent;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -19,8 +19,8 @@ public class PointEventListener {
     // 비동기로 주체의 트랜잭션이 커밋된 후에 수행
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void savePointHistoryHandler(PointHistoryEntity pointHistoryEntity) {
+    public void savePointHistoryHandler(PointEvent pointEvent) {
         // 포인트 히스토리 저장
-        paymentsService.calculatePoint(pointHistoryEntity);
+        paymentsService.calculatePoint(pointEvent);
     }
 }
