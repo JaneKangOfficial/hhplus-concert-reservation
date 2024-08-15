@@ -23,6 +23,8 @@ servlet_api = "4.0.1"
 #lettuce_core = "6.3.2.RELEASE"
 jedis_version = "4.3.1"
 
+kafka_version = "3.1.1"
+
 [plugins]
 kotlin_jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin_kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
@@ -67,6 +69,11 @@ javax_servlet_api = { module = "javax.servlet:javax.servlet-api", version.ref = 
 spring_boot_starter_data_redis = { module = "org.springframework.boot:spring-boot-starter-data-redis" }
 #io_lettuce_core = { module = "io.lettuce:lettuce-core" }
 redis_clients_jedis = { module = "redis.clients:jedis", version.ref = "jedis_version" }
+
+spring_kafka = { module = "org.springframework.kafka:spring-kafka", version.ref = "kafka_version" }
+test_containers_kafka = { module = "org.testcontainers:kafka" }
+test_containers_jupiter = { module = "org.testcontainers:junit-jupiter" }
+spring_kafka_test = { module = "org.springframework.kafka:spring-kafka-test" }
 
 
 # test

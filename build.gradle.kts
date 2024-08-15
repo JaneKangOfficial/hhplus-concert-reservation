@@ -35,6 +35,10 @@ dependencies {
     implementation(libs.redis.clients.jedis)
     implementation(libs.mysql.connector)
 //    implementation(libs.io.lettuce.core)
+    implementation(libs.spring.kafka)
+    testImplementation(libs.test.containers.kafka)
+    testImplementation(libs.test.containers.jupiter)
+    testImplementation(libs.spring.kafka.test)
 }
 
 // about source and compilation
