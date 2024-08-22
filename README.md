@@ -534,3 +534,371 @@ WHERE co.concert_id = 90000
 - 트랜잭션을 분리하고 이벤트에 AFTER_COMMIT 을 사용하여 메인 로직이 COMMIT된 이후에 부가 로직을 실행하도록 한다
 
 </details>
+
+
+<details>
+  <summary>장애 대응</summary>
+
+### 시나리오
+
+1. 포인트 충전
+2. 콘서트 목록
+3. 가능 날짜 목록
+4. 가능 좌석 목록
+5. 예약
+
+<details>
+    <summary>k6 script</summary>
+
+```
+import http from 'k6/http';
+import {check} from 'k6';
+import {randomIntBetween} from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
+
+
+export let options = {
+
+     scenarios: {
+         concert_scenario: {
+             vus: 10, // 동시 실행 가상 사용자
+             exec: 'concert_scenario',
+             executor: 'per-vu-iterations', // 각각의 가상 사용자들이 정확한 반복 횟수만큼 실행
+             iterations: 50 // 반복 횟수: 각 가상 사용자가  n번씩 함수를 실행
+         }
+    }
+    
+}
+
+export function concert_scenario() {
+
+    // userId를 1부터 500 사이에서 랜덤으로 생성
+    let userId = randomIntBetween(1, 500);
+
+    charge(userId);  // 충전
+
+    concertList();   // 콘서트 목록
+
+    dateList(1);    // 가능 날짜 목록
+
+    seatList(userId, 1, 1);   // 가능 좌석 목록
+
+    reservation(userId, 1, 1, 1);   // 예약
+    
+}
+
+function charge(userId) {
+
+    let chargingPoint = randomIntBetween(10, 100) * 1000
+
+    let payload = {
+        "userId": userId,
+        "type": "CHARGE",
+        "point": chargingPoint
+    };
+
+    let chargeRes = http.post(
+        `http://localhost:8080/api/points/charge`,
+        JSON.stringify(payload),
+        {
+            headers: {
+                'content-type': 'application/json',
+                'user-agent': 'PostmanRuntime/7.41.1',
+                'accept': '*/*',
+                'postman-token': 'f40ba301-e395-4b1e-aca6-0cf5c02ed758',
+                'host': 'localhost:8080',
+                'accept-encoding': 'gzip, deflate, br',
+                'connection': 'keep-alive'
+            },
+            tags: {name: 'charge'}
+        }
+    )
+
+    // 요청이 성공했는지 확인
+    check(chargeRes, {'is status 200': (r) => r.status === 200});
+    
+}
+
+function concertList() {
+
+    let concertListRes = http.get(
+        `http://localhost:8080/api/concerts/`,
+        JSON.stringify(),
+        {
+            headers: {
+                'user-agent': 'PostmanRuntime/7.41.1',
+                'accept': '*/*',
+                'postman-token': 'b58af78a-ff28-41f4-8f5b-a802c3eeb935',
+                'host': 'localhost:8080',
+                'accept-encoding': 'gzip, deflate, br',
+                'connection': 'keep-alive'
+            },
+            tags: {name: 'concertList'}
+        }
+    )
+
+    // 요청이 성공했는지 확인
+    check(concertListRes, {'is status 200': (r) => r.status === 200});
+    
+}
+
+
+function dateList(concertId) {
+
+    let dateListRes = http.get(
+        `http://localhost:8080/api/concerts/${concertId}/dates`,
+        JSON.stringify(),
+        {
+            headers: {
+                'user-agent': 'PostmanRuntime/7.41.1',
+                'accept': '*/*',
+                'postman-token': 'b58af78a-ff28-41f4-8f5b-a802c3eeb935',
+                'host': 'localhost:8080',
+                'accept-encoding': 'gzip, deflate, br',
+                'connection': 'keep-alive'
+            },
+            tags: {name: 'dateList'}
+        }
+    )
+
+    // 요청이 성공했는지 확인
+    check(dateListRes, {'is status 200': (r) => r.status === 200});
+    
+}
+
+
+function seatList(userId, concertId, dateId) {
+
+    let seatListRes = http.get(
+        `http://localhost:8080/api/concerts/${concertId}/${dateId}/seats?userId=${userId}`,
+        JSON.stringify(),
+        {
+            headers: {
+                'user-agent': 'PostmanRuntime/7.41.1',
+                'accept': '*/*',
+                'postman-token': 'b58af78a-ff28-41f4-8f5b-a802c3eeb935',
+                'host': 'localhost:8080',
+                'accept-encoding': 'gzip, deflate, br',
+                'connection': 'keep-alive'
+            },
+            tags: {name: 'seatList'}
+        }
+    )
+
+    // 요청이 성공했는지 확인
+    check(seatListRes, {'is status 200': (r) => r.status === 200});
+    
+}
+
+function reservation(userId, concertId, dateId, seatId) {
+
+    let payload = {
+        "userId": userId,
+        "concertId": concertId,
+        "dateId": dateId,
+        "seatId": seatId,
+        "status": "APPLY"
+    };
+
+    let reservationRes = http.post(
+        `http://localhost:8080/api/reservations/request`,
+        JSON.stringify(payload),
+        {
+            headers: {
+                'content-type': 'application/json',
+                'user-agent': 'PostmanRuntime/7.41.1',
+                'accept': '*/*',
+                'postman-token': 'f40ba301-e395-4b1e-aca6-0cf5c02ed758',
+                'host': 'localhost:8080',
+                'accept-encoding': 'gzip, deflate, br',
+                'connection': 'keep-alive'
+            },
+            tags: {name: 'reservation'}
+        }
+    )
+
+    // 요청이 성공했는지 확인
+    check(reservationRes, {'is status 200': (r) => r.status === 200});
+    
+}
+
+```
+
+</details>
+
+### vus: 10, iterations: 100
+
+```
+
+          /\      |‾‾| /‾‾/   /‾‾/   
+     /\  /  \     |  |/  /   /  /    
+    /  \/    \    |     (   /   ‾‾\  
+   /          \   |  |\  \ |  (‾)  | 
+  / __________ \  |__| \__\ \_____/ .io
+
+     execution: local
+        script: k6-scripts/strees.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 10 max VUs, 10m30s max duration (incl. graceful stop):
+              * concert_scenario: 100 iterations for each of 10 VUs (maxDuration: 10m0s, exec: concert_scenario, gracefulStop: 30s)
+
+
+     ✓ is status 200
+
+     checks.........................: 100.00% ✓ 5000      ✗ 0   
+     data_received..................: 6.2 GB  17 MB/s
+     data_sent......................: 960 kB  2.5 kB/s
+     http_req_blocked...............: avg=39.3µs   min=0s       med=3µs     max=65.44ms  p(90)=8µs      p(95)=14µs    
+     http_req_connecting............: avg=8.86µs   min=0s       med=0s      max=8.96ms   p(90)=0s       p(95)=0s      
+     http_req_duration..............: avg=743.95ms min=839µs    med=76.56ms max=15.55s   p(90)=2.3s     p(95)=2.83s   
+       { expected_response:true }...: avg=743.95ms min=839µs    med=76.56ms max=15.55s   p(90)=2.3s     p(95)=2.83s   
+     http_req_failed................: 0.00%   ✓ 0         ✗ 5000
+     http_req_receiving.............: avg=59.76ms  min=5µs      med=308µs   max=2.78s    p(90)=228.39ms p(95)=346.53ms
+     http_req_sending...............: avg=207.16µs min=2µs      med=19µs    max=241.85ms p(90)=61µs     p(95)=143.04µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s      max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=683.98ms min=771µs    med=74.12ms max=15.23s   p(90)=2.14s    p(95)=2.65s   
+     http_reqs......................: 5000    13.228627/s
+     iteration_duration.............: avg=3.72s    min=204.72ms med=2.97s   max=17.35s   p(90)=6.31s    p(95)=9.04s   
+     iterations.....................: 1000    2.645725/s
+     vus............................: 1       min=1       max=10
+     vus_max........................: 10      min=10      max=10
+
+
+running (06m18.0s), 00/10 VUs, 1000 complete and 0 interrupted iterations
+concert_scenario ✓ [======================================] 10 VUs  06m18.0s/10m0s  1000/1000 iters, 100 per VU
+
+
+```
+
+- http_reqs : 5000개의 요청
+- http_req_failed : 실패 0.00%
+- http_req_blocked : 병목 현상 평균 39.3µs로 없음
+- http_req_receiving : 응답 받는데 평균 소요 시간 59.76ms
+- http_req_waiting : 서버가 요청을 처리하는데 걸리는 평균 소요 시간 683.98ms
+- TPS 13.228627 == `성능이 좋지 않다`
+- http_req_duration : 평균 743.95ms, 가장 오래 걸린 시간은 15.55s 로 차이가 많이 난다
+- p(90)=2.3s, p(95)=2.83s
+
+### vus: 10, iterations: 30
+
+```
+
+          /\      |‾‾| /‾‾/   /‾‾/   
+     /\  /  \     |  |/  /   /  /    
+    /  \/    \    |     (   /   ‾‾\  
+   /          \   |  |\  \ |  (‾)  | 
+  / __________ \  |__| \__\ \_____/ .io
+
+     execution: local
+        script: k6-scripts/strees.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 10 max VUs, 10m30s max duration (incl. graceful stop):
+              * concert_scenario: 30 iterations for each of 10 VUs (maxDuration: 10m0s, exec: concert_scenario, gracefulStop: 30s)
+
+
+     ✓ is status 200
+
+     checks.........................: 100.00% ✓ 1500      ✗ 0   
+     data_received..................: 448 MB  7.3 MB/s
+     data_sent......................: 288 kB  4.7 kB/s
+     http_req_blocked...............: avg=11.49µs  min=0s       med=2µs     max=1.16ms  p(90)=5µs    p(95)=6µs    
+     http_req_connecting............: avg=3.9µs    min=0s       med=0s      max=492µs   p(90)=0s     p(95)=0s     
+     http_req_duration..............: avg=370.69ms min=903µs    med=11.4ms  max=2.59s   p(90)=2s     p(95)=2s     
+       { expected_response:true }...: avg=370.69ms min=903µs    med=11.4ms  max=2.59s   p(90)=2s     p(95)=2s     
+     http_req_failed................: 0.00%   ✓ 0         ✗ 1500
+     http_req_receiving.............: avg=2.08ms   min=4µs      med=79µs    max=60.15ms p(90)=7.04ms p(95)=10.81ms
+     http_req_sending...............: avg=18.36µs  min=2µs      med=9µs     max=679µs   p(90)=30µs   p(95)=47µs   
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s      max=0s      p(90)=0s     p(95)=0s     
+     http_req_waiting...............: avg=368.59ms min=884µs    med=11.16ms max=2.59s   p(90)=2s     p(95)=2s     
+     http_reqs......................: 1500    24.601871/s
+     iteration_duration.............: avg=1.85s    min=479.28ms med=2.31s   max=3.16s   p(90)=2.88s  p(95)=3s     
+     iterations.....................: 300     4.920374/s
+     vus............................: 2       min=2       max=10
+     vus_max........................: 10      min=10      max=10
+
+
+running (01m01.0s), 00/10 VUs, 300 complete and 0 interrupted iterations
+concert_scenario ✓ [======================================] 10 VUs  01m01.0s/10m0s  300/300 iters, 30 per VU
+
+```
+
+- http_reqs : 1500개의 요청
+- http_req_failed : 실패 0.00%
+- http_req_blocked : 병목 현상 평균 11.49µs로 없음
+- http_req_receiving : 응답 받는데 평균 소요 시간 2.08ms
+- http_req_waiting : 서버가 요청을 처리하는데 걸리는 평균 소요 시간 368.59ms
+- TPS 24.601871 == `좀 나아졌지만 여전히 성능이 좋지 않다`
+- http_req_duration : 평균 370.69ms, 가장 오래 걸린 시간은 3.16s
+- p(90)=2s, p(95)=2s
+
+### vus: 10, iterations: 50
+
+```
+
+          /\      |‾‾| /‾‾/   /‾‾/   
+     /\  /  \     |  |/  /   /  /    
+    /  \/    \    |     (   /   ‾‾\  
+   /          \   |  |\  \ |  (‾)  | 
+  / __________ \  |__| \__\ \_____/ .io
+
+     execution: local
+        script: k6-scripts/strees.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 10 max VUs, 10m30s max duration (incl. graceful stop):
+              * concert_scenario: 50 iterations for each of 10 VUs (maxDuration: 10m0s, exec: concert_scenario, gracefulStop: 30s)
+
+
+     ✓ is status 200
+
+     checks.........................: 100.00% ✓ 2500      ✗ 0   
+     data_received..................: 747 MB  6.9 MB/s
+     data_sent......................: 480 kB  4.4 kB/s
+     http_req_blocked...............: avg=11.51µs  min=0s      med=2µs     max=1.32ms  p(90)=6µs    p(95)=8µs    
+     http_req_connecting............: avg=3.76µs   min=0s      med=0s      max=668µs   p(90)=0s     p(95)=0s     
+     http_req_duration..............: avg=409.71ms min=1.07ms  med=14.9ms  max=3.98s   p(90)=2s     p(95)=2s     
+       { expected_response:true }...: avg=409.71ms min=1.07ms  med=14.9ms  max=3.98s   p(90)=2s     p(95)=2s     
+     http_req_failed................: 0.00%   ✓ 0         ✗ 2500
+     http_req_receiving.............: avg=6.42ms   min=4µs     med=113µs   max=1.51s   p(90)=8.97ms p(95)=14.17ms
+     http_req_sending...............: avg=38.84µs  min=2µs     med=14µs    max=10.48ms p(90)=37µs   p(95)=60µs   
+     http_req_tls_handshaking.......: avg=0s       min=0s      med=0s      max=0s      p(90)=0s     p(95)=0s     
+     http_req_waiting...............: avg=403.25ms min=910µs   med=14.46ms max=3.98s   p(90)=2s     p(95)=2s     
+     http_reqs......................: 2500    23.030868/s
+     iteration_duration.............: avg=2.04s    min=310.2ms med=2.35s   max=4.39s   p(90)=3.01s  p(95)=3.25s  
+     iterations.....................: 500     4.606174/s
+     vus............................: 2       min=2       max=10
+     vus_max........................: 10      min=10      max=10
+
+
+running (01m48.5s), 00/10 VUs, 500 complete and 0 interrupted iterations
+concert_scenario ✓ [======================================] 10 VUs  01m48.6s/10m0s  500/500 iters, 50 per VU
+
+```
+
+- http_reqs : 2500개의 요청
+- http_req_failed : 실패 0.00%
+- http_req_blocked : 병목 현상 평균 11.51µs로 없음
+- http_req_receiving : 응답 받는데 평균 소요 시간 6.42ms
+- http_req_waiting : 서버가 요청을 처리하는데 걸리는 평균 소요 시간 403.25ms
+- TPS 23.030868 == `iterations: 30 일 때와 별 차이가 없다`
+- http_req_duration : 평균 2.04s, 가장 오래 걸린 시간은 4.39s 로 편차가 많이 줄었다
+- p(90)=2s, p(95)=2s == `iterations: 30 일 때와 똑같다`
+
+### 결론
+
+- vus: 10, iterations: 50 로 TPS 24.601871이 적절하다고 생각
+- vus: 10, iterations: 100 보다는 빠르고
+- vus: 10, iterations: 30 과는 성능 차이가 별로 없지만 50이 더 많은 요구를 수용할 수 있다
+- vus: 10, iterations: 100 보다 높으면 타임아웃 에러가 발생
+
+### 장애 대응
+
+- API를 하나씩 확인한 결과 콘서트 목록에서 많은 시간을 소요한다는 것을 알았다
+- 콘서트 목록을 가져올 때 findAll이 아닌 조건을 사용하여 가져오면 시간을 줄일 수 있을 것 같다  
+  (콘서트 목록에서 전부 가져오는 것이 아닌 해당 월의 콘서트만 조회하는 방법)
+- 콘서트 목록 쿼리에 인덱스를 적용하면 시간을 줄일 수 있을 것 같다
+- 변동이 거의 없는 콘서트 목록 같은 경우는 캐시를 적용시키면 빠른 응답을 받을 수 있다
+- 서버 성능을 늘리는 방안도 있을 것 같다
+
+</details>
